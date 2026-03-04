@@ -1,9 +1,10 @@
+import uuid
 from dataclasses import asdict
 
 from bson import ObjectId
 
 from common.db import db_projects
-from common.error import ServiceError, FEEDBACK_UPDATE_FAILED, PROJECT_NOT_FOUND
+from common.error import ServiceError, FEEDBACK_UPDATE_FAILED, FEEDBACK_NOT_FOUND, FEEDBACK_NOT_RESOLVED, PROJECT_NOT_FOUND
 from model.feedback import Feedback
 
 
@@ -14,7 +15,7 @@ def feedback_submit(project_id: str, feedbacks: list[dict]) -> bool | ServiceErr
 
     for fb in feedbacks:
         tc_id = fb["test_case_id"]
-        feedback = Feedback(is_ok=fb["is_ok"], error_reason=fb["error_reason"], is_resolved=False)
+        feedback = Feedback(id=str(uuid.uuid4()), is_ok=fb["is_ok"], error_reason=fb["error_reason"], is_resolved=False)
 
         result = db_projects.update_one(
             {"_id": ObjectId(project_id), "test_cases.id": tc_id},

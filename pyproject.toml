@@ -4,6 +4,7 @@ version = "0.0.1"
 description = "Jungle QA Service"
 requires-python = ">=3.12"
 dependencies = [
+    "bcrypt",
     "flask",
     "pymongo",
 ]

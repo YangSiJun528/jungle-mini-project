@@ -33,7 +33,3 @@ def feedback_resolve(user_id: str, feedback_id: str) -> bool | ServiceError:
 
 def feedback_delete(user_id: str, feedback_id: str) -> bool | ServiceError:
     pass
-
-
-def feedback_get_list(testcase_id: str, include_resolved: bool = False) -> list[Feedback]:
-    pass

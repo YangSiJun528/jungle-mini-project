@@ -20,7 +20,6 @@ def render_login():
     return render_template("login.html")
     
 @app.route("/login", methods=["POST"])
-
 def login():
     # request 받기
     login_id = request.form.get('login_id').strip()
@@ -33,13 +32,14 @@ def login():
     
     # 로그인 인증 서비스 호출
     result = auth_login(login_id, password)
-
-    if isinstance(result, ServiceError):
-        flash("아이디/비밀번호가 올바르지 않습니다")
-        return redirect("/login")
+    # try:
+    #     user, token = auth_login(login_id, password)
+    # except ServiceError:
+    #     flash("아이디/비밀번호가 올바르지 않습니다")
+    #     return redirect("/login")
     
     # 로그인 성공 시, 메인페이지
-    return redirect("/")
+    return redirect("/login")
 
 
 @app.route("/signup", methods=["GET"])

@@ -11,7 +11,7 @@ app.secret_key = "secret_key"
 # 전역 컨텍스트
 @app.context_processor
 def inject_user_context():
-    return {"user_context": get_user_context(False)}
+    return {"user_context": get_user_context(True)}
 
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")

@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
+from model import project
+
 app = Flask(__name__)
 
 # 도커 컴포즈 배포 시 확인용
@@ -138,32 +140,11 @@ def delete_testcase(testcase_id):
 @app.route("/projects/<project_id>/feedbacks", methods=["GET"])
 def render_feedbacks(project_id):
     # 컨플릭 방지용으로 함수 안에서 정의
-    from datetime import datetime
-    import uuid
-
     from model.project import Project
-    from model.tag import Tag
-    from model.test_case import TestCase
+    from service.project_service import project_get
 
     # 실제
-    #project = project_get(project_id)
-
-    # 임시
-    # TODO(sijun-yang): 나중에 project_get으로 대체
-    project = Project(
-        _id="1234123412341234",
-        title="배달의민족",
-        content="테스트 내용입니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam in felis vitae erat imperdiet semper id vitae neque. Donec venenatis vel urna sed laoreet.",
-        url="https://google.com",
-        expired_date=datetime(2026, 12, 31),
-        is_expired=False,
-        test_cases=[
-            TestCase(id=str(uuid.uuid4()), content="로그인 가능해야 함."),
-            TestCase(id=str(uuid.uuid4()), content="로그아웃 가능해야 함."),
-            TestCase(id=str(uuid.uuid4()), content="게시글 작성 가능해야 함.")
-        ],
-        tags=[Tag("태그이름1"), Tag("태그이름2")]
-    )
+    project = project_get(project_id)
 
     assert isinstance(project, Project) #TODO(sijun-yang): project 조회 예외 처리
 
@@ -171,7 +152,28 @@ def render_feedbacks(project_id):
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
-    pass
+    from common.error import ServiceError
+    from service.feedback_service import feedback_submit
+
+    form = request.form
+    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+
+    feedbacks = []
+    for tc_id in test_case_ids:
+        is_ok = form.get(f"result_{tc_id}") == "success"
+        feedbacks.append({
+            "test_case_id": tc_id,
+            "is_ok": is_ok,
+            "error_reason": None if is_ok else form.get(f"feedback_{tc_id}"),
+        })
+
+    result = feedback_submit(project_id, feedbacks)
+
+    if isinstance(result, ServiceError):
+        # TODO(sijun-yang): 서버 에러 UI 처리
+        pass
+
+    return redirect(url_for("render_project_detail", project_id=project_id))
 
 
 @app.route("/feedbacks/<feedback_id>/resolve", methods=["POST"])

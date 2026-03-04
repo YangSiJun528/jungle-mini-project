@@ -5,24 +5,24 @@
 <h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
 <p>{{ project.content }}</p>
 
-<form action="/submit_feedback" method="POST">
+<form id="feedback-form" action="/projects/{{ project._id }}/feedbacks" method="POST">
     <div class="mb-3 border p-3">
         {% for test_case in project.test_cases %}
         <div class="mb-3 border p-3">
 
             <label class="form-label">{{ test_case.content }}</label>
 
-            <div>
+            <div class="testcase-feedback-radio">
                 <input type="radio"
                        name="result_{{ test_case.id }}"
                        value="success"
-                       onclick="$('#feedback_{{ test_case.id }}').hide()">
+                       onclick="$('#feedback_{{ test_case.id }}').hide(); validateAndToggleSubmit()">
                 성공
 
                 <input type="radio"
                        name="result_{{ test_case.id }}"
                        value="fail"
-                       onclick="$('#feedback_{{ test_case.id }}').show()">
+                       onclick="$('#feedback_{{ test_case.id }}').show(); validateAndToggleSubmit()">
                 실패
             </div>
 
@@ -31,12 +31,36 @@
                    name="feedback_{{ test_case.id }}" {# name은 POST Form 요청에서 서버가 받음 #}
                    class="form-control mt-2"
                    placeholder="발생하는 문제를 입력해주세요."
+                   oninput="validateAndToggleSubmit()"
                    style="display:none;"> {# 기본적으로 안보이게 처리 #}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">제출하기</button>
+        <button type="submit"
+                class="btn btn-primary"
+                id="feedback-form-submit-btn"
+                disabled>제출하기
+        </button>
     </div>
 </form>
 {% endblock %}
 
+{% block scripts %}
+<script>
+    function validateAndToggleSubmit() {
+        const form = $("#feedback-form");
 
+        // 참고: https://api.jquery.com/radio-selector/
+        const totalRadioCount = form.find(".testcase-feedback-radio").length;
+        const checkedRadioCount = form.find("input[type='radio']:checked").length;
+        const isAllRadioChecked = checkedRadioCount >= totalRadioCount;
+
+        const emptyInputCount = form.find("input[type='text']:visible").filter(function () {
+            return this.value.trim() === '';
+        }).length;
+        const isAllErrorReasonFilled = emptyInputCount <= 0;
+
+        const isBtnEnabled = isAllRadioChecked && isAllErrorReasonFilled;
+        form.find("#feedback-form-submit-btn").prop("disabled", !isBtnEnabled);
+    }
+</script>
+{% endblock %}

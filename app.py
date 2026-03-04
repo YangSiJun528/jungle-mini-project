@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
-from service.auth_service import auth_signup
+from service.auth_service import auth_signup, auth_login
 from common.error import ServiceError
 from model import project
 
@@ -20,11 +20,26 @@ def render_login():
     return render_template("login.html")
     
 @app.route("/login", methods=["POST"])
+
 def login():
-    # 폼: user_id, password
-    # 성공 -> 알잘딱
-    # 실패 ->
-    pass
+    # request 받기
+    login_id = request.form.get('login_id').strip()
+    password = request.form.get('password')
+
+    # 공백이 들어왔을때 에러메시지
+    if not login_id or not password:
+        flash("아이디/비밀번호를 입력하세요")
+        return redirect("/login")   
+    
+    # 로그인 인증 서비스 호출
+    result = auth_login(login_id, password)
+
+    if isinstance(result, ServiceError):
+        flash("아이디/비밀번호가 올바르지 않습니다")
+        return redirect("/login")
+    
+    # 로그인 성공 시, 메인페이지
+    return redirect("/")
 
 
 @app.route("/signup", methods=["GET"])

@@ -4,7 +4,8 @@ from dataclasses import asdict
 from bson import ObjectId
 
 from common.db import db_projects
-from common.error import ServiceError, FEEDBACK_UPDATE_FAILED, FEEDBACK_NOT_FOUND, FEEDBACK_NOT_RESOLVED, PROJECT_NOT_FOUND
+from common.error import ServiceError, FEEDBACK_UPDATE_FAILED, FEEDBACK_NOT_FOUND, FEEDBACK_NOT_RESOLVED, \
+    PROJECT_NOT_FOUND
 from model.feedback import Feedback
 
 
@@ -27,6 +28,8 @@ def feedback_submit(project_id: str, feedbacks: list[dict]) -> bool | ServiceErr
 
     return True
 
+
+# TODO(sijun-yang): 테스트 필요 - 아마 잘 될 거 같긴 한데
 def feedback_resolve(project_id: str, feedback_id: str) -> bool | ServiceError:
     tc_id, fb_id, feedback = _find_feedback(project_id, feedback_id)
     if not feedback:
@@ -45,6 +48,7 @@ def feedback_resolve(project_id: str, feedback_id: str) -> bool | ServiceError:
     return True
 
 
+# TODO(sijun-yang): 테스트 필요 - 아마 잘 될 거 같긴 한데
 def feedback_delete(project_id: str, feedback_id: str) -> bool | ServiceError:
     tc_id, fb_id, feedback = _find_feedback(project_id, feedback_id)
     if not feedback:
@@ -64,9 +68,10 @@ def feedback_delete(project_id: str, feedback_id: str) -> bool | ServiceError:
 
     return True
 
-#--------------------
+
+# --------------------
 # private
-#--------------------
+# --------------------
 
 def _find_feedback(project_id: str, feedback_id: str) -> tuple[str, str, Feedback] | tuple[None, None, None]:
     doc = db_projects.find_one({"_id": ObjectId(project_id), "test_cases.feedbacks.id": feedback_id})

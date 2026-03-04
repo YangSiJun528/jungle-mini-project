@@ -1,10 +1,10 @@
 from pymongo import MongoClient
-from pymongo.database import Database
+from pymongo.collection import Collection
 import os
 
 mongo_host = os.environ.get("MONGO_HOST", "localhost")
-client = MongoClient(f"mongodb://{mongo_host}:27017/")
+_client = MongoClient(f"mongodb://{mongo_host}:27017/")
+_db = _client["jungleqa"]
 
-
-def get_db() -> Database:
-    return client["jungleqa"]
+db_projects: Collection = _db["projects"]
+db_users: Collection = _db["users"]

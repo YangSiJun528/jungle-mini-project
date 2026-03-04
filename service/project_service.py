@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from common.db import get_db
+from common.db import db_projects
 from model.project import Project
 from bson.objectid import ObjectId
 from datetime import datetime
@@ -7,18 +7,16 @@ from datetime import datetime
 
 def project_create(project: Project) -> Project:
     # 모델을 그대로 저장하는 구현 예시, 실제로 여기 개발 할 때는 이 코드 지우고 만들기.
-    db = get_db()
     # 참고: https://stackoverflow.com/a/62709673
     doc = asdict(project) # asdict()는 Class -> dict로 변경
     doc.pop("_id") # _id가 None으로 중복되지 않게 dict에서 제거
-    result = db.projects.insert_one(doc) # MongoDB에 저장
+    result = db_projects.insert_one(doc) # MongoDB에 저장
     project._id = str(result.inserted_id) # 자동 생성된 ID를 project._id에 할당
     return project
 
 
 def project_get(project_id: str) -> Project | None:
-    db = get_db()
-    doc = db.projects.find_one({"_id": ObjectId(project_id)})
+    doc = db_projects.find_one({"_id": ObjectId(project_id)})
     if not doc:
         return None
     doc["_id"] = str(doc["_id"])

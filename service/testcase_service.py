@@ -1,4 +1,4 @@
-from common.db import get_db
+from common.db import db_projects
 from model import TestCase
 
 

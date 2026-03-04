@@ -29,7 +29,7 @@ def feedback_submit(project_id: str, feedbacks: list[dict]) -> bool | ServiceErr
     return True
 
 
-# TODO(sijun-yang): 테스트 필요 - 아마 잘 될 거 같긴 한데
+# TODO(sijun-yang): 테스트 필요 - 쿼리는 직접 CLI로 동작 확인함
 def feedback_resolve(project_id: str, feedback_id: str) -> bool | ServiceError:
     tc_id, fb_id, feedback = _find_feedback(project_id, feedback_id)
     if not feedback:
@@ -48,7 +48,7 @@ def feedback_resolve(project_id: str, feedback_id: str) -> bool | ServiceError:
     return True
 
 
-# TODO(sijun-yang): 테스트 필요 - 아마 잘 될 거 같긴 한데
+# TODO(sijun-yang): 테스트 필요 - 쿼리는 직접 CLI로 동작 확인함
 def feedback_delete(project_id: str, feedback_id: str) -> bool | ServiceError:
     tc_id, fb_id, feedback = _find_feedback(project_id, feedback_id)
     if not feedback:

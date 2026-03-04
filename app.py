@@ -150,37 +150,5 @@ def delete_feedback(feedback_id):
     # 소유자만 삭제 가능 (어뷰징 방지)
     pass
 
-def test_db():
-    from dataclasses import asdict
-    from datetime import datetime
-    from common.db import db_projects
-    from model.project import Project
-    from service.project_service import project_create, project_get
-
-    db_projects.drop() # 초기화
-
-    p = Project(
-        _id="",
-        title="테스트 프로젝트 이름",
-        content="테스트 내용입니다 테스트 내용입니다 테스트 내용입니다 테스트 내용입니다 테스트 내용입니다 테스트 내용입니다 테스트 내용입니다",
-        url="https://google.com",
-        expired_date=datetime(2026, 12, 31),
-        is_expired=False,
-    )
-    created = project_create(p)
-    print("=== 생성 결과 ===")
-    print(asdict(created))
-
-    found = project_get(created._id)
-    print("=== 조회 결과 ===")
-    print(asdict(found))
-
-    not_found = project_get("000000000000000000000000")
-    print("=== 없는 프로젝트 조회 ===")
-    print(not_found)
-
-    db_projects.drop()
-
 if __name__ == "__main__":
-    test_db()
-    #app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5001)

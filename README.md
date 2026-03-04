@@ -32,4 +32,8 @@ AI한테 도커 컴포즈 띄운거 삭제해달라고 ㄱㄱ
   - https://devocean.sk.com/blog/techBoardDetail.do?ID=167420&boardType=techBlog
   - 이해 안가면 AI ㄱㄱ
 - gitignore 생성하기: https://www.toptal.com/developers/gitignore
-
+- CICD
+  - Github Actions 사용 
+    - 미리 구현된 third-party 사용: https://github.com/marketplace/actions/ssh-remote-commands
+  - 사실 테스트, 린트, 정적/빌드 검사 등이 없어서 CI는 아니고 CD만 있는 상황. 무중단 배포도 아니지만...
+  - 개발 편의를 위한 자동화로는 충분함. 

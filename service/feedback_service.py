@@ -42,5 +42,40 @@ def feedback_resolve(project_id: str, feedback_id: str) -> bool | ServiceError:
     if result.modified_count == 0:
         return FEEDBACK_UPDATE_FAILED
 
-def feedback_delete(user_id: str, feedback_id: str) -> bool | ServiceError:
-    pass
+    return True
+
+
+def feedback_delete(project_id: str, feedback_id: str) -> bool | ServiceError:
+    tc_id, fb_id, feedback = _find_feedback(project_id, feedback_id)
+    if not feedback:
+        return FEEDBACK_NOT_FOUND
+
+    if not feedback.is_resolved:
+        return FEEDBACK_NOT_RESOLVED
+
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id)},
+        {"$pull": {"test_cases.$[tc].feedbacks": {"id": fb_id}}},
+        array_filters=[{"tc.id": tc_id}]
+    )
+
+    if result.modified_count == 0:
+        return FEEDBACK_UPDATE_FAILED
+
+    return True
+
+#--------------------
+# private
+#--------------------
+
+def _find_feedback(project_id: str, feedback_id: str) -> tuple[str, str, Feedback] | tuple[None, None, None]:
+    doc = db_projects.find_one({"_id": ObjectId(project_id), "test_cases.feedbacks.id": feedback_id})
+    if not doc:
+        return None, None, None
+
+    for tc in doc["test_cases"]:
+        for fb in tc["feedbacks"]:
+            if fb["id"] == feedback_id:
+                return tc["id"], fb["id"], Feedback(**fb)
+
+    return None, None, None

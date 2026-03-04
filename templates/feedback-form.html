@@ -5,24 +5,24 @@
 <h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
 <p>{{ project.content }}</p>
 
-<form action="/projects/{{ project.id }}/feedbacks" method="POST">
+<form id="feedback-form" action="/projects/{{ project._id }}/feedbacks" method="POST">
     <div class="mb-3 border p-3">
         {% for test_case in project.test_cases %}
         <div class="mb-3 border p-3">
 
             <label class="form-label">{{ test_case.content }}</label>
 
-            <div>
+            <div class="testcase-feedback-radio">
                 <input type="radio"
                        name="result_{{ test_case.id }}"
                        value="success"
-                       onclick="$('#feedback_{{ test_case.id }}').hide()">
+                       onclick="$('#feedback_{{ test_case.id }}').hide(); checkAllSubmit()">
                 성공
 
                 <input type="radio"
                        name="result_{{ test_case.id }}"
                        value="fail"
-                       onclick="$('#feedback_{{ test_case.id }}').show()">
+                       onclick="$('#feedback_{{ test_case.id }}').show(); checkAllSubmit()">
                 실패
             </div>
 
@@ -34,9 +34,18 @@
                    style="display:none;"> {# 기본적으로 안보이게 처리 #}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">제출하기</button>
+        <button type="submit" class="btn btn-primary" id="feedback-form-submit-btn" disabled>제출하기</button>
     </div>
 </form>
 {% endblock %}
 
-
+{% block scripts %}
+<script>
+    function checkAllSubmit() {
+        const form = $("#feedback-form");
+        const total = form.find(".testcase-feedback-radio").length;
+        const checked = form.find("input[type='radio']:checked").length;
+        form.find("#feedback-form-submit-btn").prop("disabled", checked < total);
+    }
+</script>
+{% endblock %}

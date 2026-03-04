@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ project.title }}</h2>
+<h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
+<p>{{ project.content }}</p>
+
+<form action="/submit_feedback" method="POST">
+    <div class="mb-3 border p-3">
+        {% for test_case in project.test_cases %}
+        <div class="mb-3 border p-3">
+
+            <label class="form-label">{{ test_case.content }}</label>
+
+            <div>
+                <input type="radio"
+                       name="result_{{ test_case.id }}"
+                       value="success"
+                       onclick="$('#feedback_{{ test_case.id }}').hide()">
+                성공
+
+                <input type="radio"
+                       name="result_{{ test_case.id }}"
+                       value="fail"
+                       onclick="$('#feedback_{{ test_case.id }}').show()">
+                실패
+            </div>
+
+            <input type="text"
+                   id="feedback_{{ test_case.id }}" {# id는 jQuery 셀렉터가 사용 #}
+                   name="feedback_{{ test_case.id }}" {# name은 POST Form 요청에서 서버가 받음 #}
+                   class="form-control mt-2"
+                   placeholder="발생하는 문제를 입력해주세요."
+                   style="display:none;"> {# 기본적으로 안보이게 처리 #}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">제출하기</button>
+    </div>
+</form>
+{% endblock %}
+
+

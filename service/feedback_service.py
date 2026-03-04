@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from common.db import db_projects
 from common.error import ServiceError, FEEDBACK_UPDATE_FAILED, PROJECT_NOT_FOUND
-from model import Feedback
+from model.feedback import Feedback
 
 
 def feedback_submit(project_id: str, feedbacks: list[dict]) -> bool | ServiceError:

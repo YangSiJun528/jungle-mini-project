@@ -1,6 +1,11 @@
-from flask import Flask
+from flask import Flask, render_template, request, redirect
+from pymongo import MongoClient
 
 app = Flask(__name__)
+
+client = MongoClient("mongodb://mongo:27017/")
+db = client["jungle"]
+projects = db["projects"]
 
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")
@@ -52,7 +57,7 @@ def logout():
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
     # 쿼리 파라미터 처리 필요
-    pass
+    return "home page"
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
@@ -72,13 +77,26 @@ def render_my_projects():
 
 @app.route("/projects/new", methods=["GET"])
 def render_project_form():
-    # 프로젝트 생성 폼 페이지
-    pass
+    return render_template("project_form.html")
 
 
-@app.route("/projects/new", methods=["POST"])
+@app.route("/projects", methods=["POST"])
 def create_project():
-    pass
+    title = request.form["title"]
+    content = request.form["content"]
+    url = request.form["url"]
+
+    project = {
+        "title": title,
+        "content": content,
+        "url": url
+    }
+
+    projects.insert_one(project)
+
+    return redirect("/health")
+
+
 
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])

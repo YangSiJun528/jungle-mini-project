@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.form-container{
+    width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input, textarea{
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+textarea{
+    height: 100px;
+    resize: none;
+}
+
+button{
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: #45a049;
+}
+</style>
+
+<div class="form-container">
+<form action = "/projects" method = "POST">
+    <input name = "title" placeholder = "제목을 입력해주세요">
+    <textarea name = "content" placeholder = "설명"></textarea>
+    <input name = "url" placeholder = "귀하의 서비스의 url을 입력">
+    <button type ="submit">등록</button>
+</form>
+</div>
+{% endblock %}

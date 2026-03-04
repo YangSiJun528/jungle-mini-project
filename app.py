@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages
+from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
 from service.auth_service import auth_signup
 from common.error import ServiceError
+from model import project
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
@@ -156,9 +157,43 @@ def delete_testcase(testcase_id):
 # 피드백
 # ------------------------
 
+@app.route("/projects/<project_id>/feedbacks", methods=["GET"])
+def render_feedbacks(project_id):
+    # 컨플릭 방지용으로 함수 안에서 정의
+    from model.project import Project
+    from service.project_service import project_get
+
+    # 실제
+    project = project_get(project_id)
+
+    assert isinstance(project, Project) #TODO(sijun-yang): project 조회 예외 처리
+
+    return render_template("feedback-form.html", project=project)
+
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
-    pass
+    from common.error import ServiceError
+    from service.feedback_service import feedback_submit
+
+    form = request.form
+    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+
+    feedbacks = []
+    for tc_id in test_case_ids:
+        is_ok = form.get(f"result_{tc_id}") == "success"
+        feedbacks.append({
+            "test_case_id": tc_id,
+            "is_ok": is_ok,
+            "error_reason": None if is_ok else form.get(f"feedback_{tc_id}"),
+        })
+
+    result = feedback_submit(project_id, feedbacks)
+
+    if isinstance(result, ServiceError):
+        # TODO(sijun-yang): 서버 에러 UI 처리
+        pass
+
+    return redirect(url_for("render_project_detail", project_id=project_id))
 
 
 @app.route("/feedbacks/<feedback_id>/resolve", methods=["POST"])

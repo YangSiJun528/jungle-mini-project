@@ -5,6 +5,7 @@ services:
       - "5001:5001"
     environment:
       - MONGO_HOST=mongo
+      - PYTHONUNBUFFERED=1
     depends_on:
       - mongo
     healthcheck:

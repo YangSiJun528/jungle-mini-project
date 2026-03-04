@@ -1,6 +1,11 @@
 # Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
+# CURL 설치 - 참고: https://stackoverflow.com/questions/73678713/how-to-install-curl-from-dockerfile
+RUN apt-get update  \
+ && apt-get install -y --no-install-recommends curl  \
+ && rm -rf /var/lib/apt/lists/*
+
 # Setup a non-root user
 RUN groupadd --system --gid 999 nonroot \
  && useradd --system --gid 999 --uid 999 --create-home nonroot

@@ -173,10 +173,28 @@ def render_feedbacks(project_id):
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
-    print("===================================================")
-    print(project_id)
-    print(request.form.to_dict())
-    return redirect("/health")
+    from common.error import ServiceError
+    from service.feedback_service import feedback_submit
+
+    form = request.form
+    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+
+    feedbacks = []
+    for tc_id in test_case_ids:
+        is_ok = form.get(f"result_{tc_id}") == "success"
+        feedbacks.append({
+            "test_case_id": tc_id,
+            "is_ok": is_ok,
+            "error_reason": None if is_ok else form.get(f"feedback_{tc_id}"),
+        })
+
+    result = feedback_submit(project_id, feedbacks)
+
+    if isinstance(result, ServiceError):
+        # TODO(sijun-yang): 서버 에러 UI 처리
+        pass
+
+    return redirect(url_for("render_project_detail", project_id=project_id))
 
 
 @app.route("/feedbacks/<feedback_id>/resolve", methods=["POST"])

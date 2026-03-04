@@ -8,8 +8,9 @@ class ServiceError:
 
 # 각자 맡은 파트에서 1씩 증가시켜가면서 에러 추가하기
 
-# 1xxx: Auth
-AUTH_COMMON = ServiceError(1000, "인증 에러 예시")
+# 1: Auth
+
+DUPLICATE_ID_COMMON = ServiceError(1000, "중복 ID 입니다")
 
 # 2xxx: Project
 PROJECT_COMMON = ServiceError(2000, "에러 예시")

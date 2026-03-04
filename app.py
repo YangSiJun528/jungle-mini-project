@@ -2,6 +2,12 @@ from flask import Flask
 
 app = Flask(__name__)
 
+# 도커 컴포즈 배포 시 확인용
+@app.route("/health")
+def health():
+    return "ok"
+
+
 # ------------------------
 # 인증
 # ------------------------
@@ -146,4 +152,5 @@ def delete_feedback(feedback_id):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    test_db()
+    # app.run(host="0.0.0.0", port=5001)

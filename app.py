@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -134,6 +134,40 @@ def delete_testcase(testcase_id):
 # ------------------------
 # 피드백
 # ------------------------
+
+@app.route("/projects/<project_id>/feedbacks", methods=["GET"])
+def render_feedbacks(project_id):
+    # 컨플릭 방지용으로 함수 안에서 정의
+    from datetime import datetime
+    import uuid
+
+    from model.project import Project
+    from model.tag import Tag
+    from model.test_case import TestCase
+
+    # 실제
+    #project = project_get(project_id)
+
+    # 임시
+    # TODO(sijun-yang): 나중에 project_get으로 대체
+    project = Project(
+        _id="1234123412341234",
+        title="배달의민족",
+        content="테스트 내용입니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam in felis vitae erat imperdiet semper id vitae neque. Donec venenatis vel urna sed laoreet.",
+        url="https://google.com",
+        expired_date=datetime(2026, 12, 31),
+        is_expired=False,
+        test_cases=[
+            TestCase(id=str(uuid.uuid4()), content="로그인 가능해야 함."),
+            TestCase(id=str(uuid.uuid4()), content="로그아웃 가능해야 함."),
+            TestCase(id=str(uuid.uuid4()), content="게시글 작성 가능해야 함.")
+        ],
+        tags=[Tag("태그이름1"), Tag("태그이름2")]
+    )
+
+    assert isinstance(project, Project) #TODO(sijun-yang): project 조회 예외 처리
+
+    return render_template("feedback-form.html", project=project)
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):

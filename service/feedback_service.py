@@ -14,7 +14,7 @@ def feedback_submit(project_id: str, feedbacks: list[dict]) -> bool | ServiceErr
 
     for fb in feedbacks:
         tc_id = fb["test_case_id"]
-        feedback = Feedback(is_ok=fb["is_ok"], error_reason=fb["error_reason"])
+        feedback = Feedback(is_ok=fb["is_ok"], error_reason=fb["error_reason"], is_resolved=False)
 
         result = db_projects.update_one(
             {"_id": ObjectId(project_id), "test_cases.id": tc_id},

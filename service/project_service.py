@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from common.db import db_projects
+from common.error import ServiceError, PROJECT_NOT_FOUND
 from model.project import Project
 from bson.objectid import ObjectId
 from datetime import datetime
@@ -15,10 +16,10 @@ def project_create(project: Project) -> Project:
     return project
 
 
-def project_get(project_id: str) -> Project | None:
+def project_get(project_id: str) -> Project | ServiceError:
     doc = db_projects.find_one({"_id": ObjectId(project_id)})
     if not doc:
-        return None
+        return PROJECT_NOT_FOUND
     doc["_id"] = str(doc["_id"])
     return Project(**doc) # 참고: https://stackoverflow.com/questions/3394835/use-of-args-and-kwargs
 
@@ -31,18 +32,18 @@ def project_get_my(user_id: str) -> list[Project]:
     pass
 
 
-def project_update(user_id: str, project_id: str, data: dict) -> bool | str:
+def project_update(user_id: str, project_id: str, data: dict) -> bool | ServiceError:
     pass
 
 
-def project_delete(user_id: str, project_id: str) -> bool | str:
+def project_delete(user_id: str, project_id: str) -> bool | ServiceError:
     pass
 
 
-def project_close(user_id: str, project_id: str) -> bool | str:
+def project_close(user_id: str, project_id: str) -> bool | ServiceError:
     pass
 
 
-def project_add_tag(user_id: str, project_id: str, tag: str) -> bool | str:
+def project_add_tag(user_id: str, project_id: str, tag: str) -> bool | ServiceError:
     pass
 

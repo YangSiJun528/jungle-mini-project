@@ -1,16 +1,17 @@
 from common.db import db_projects
+from common.error import ServiceError
 from model import TestCase
 
 
-def testcase_add(user_id: str, project_id: str, description: str) -> TestCase | str:
+def testcase_add(user_id: str, project_id: str, description: str) -> TestCase | ServiceError:
     pass
 
 
-def testcase_deactivate(user_id: str, testcase_id: str) -> bool | str:
+def testcase_deactivate(user_id: str, testcase_id: str) -> bool | ServiceError:
     pass
 
 
-def testcase_delete(user_id: str, testcase_id: str) -> bool | str:
+def testcase_delete(user_id: str, testcase_id: str) -> bool | ServiceError:
     pass
 
 

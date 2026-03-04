@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
-
+from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
+from service.auth_service import auth_signup
+from common.error import ServiceError
 from model import project
 
 app = Flask(__name__)
-
+app.secret_key = "secret_key"
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")
 def health():
@@ -16,10 +17,8 @@ def health():
 
 @app.route("/login", methods=["GET"])
 def render_login():
-    # 로그인 페이지
-    pass
-
-
+    return render_template("login.html")
+    
 @app.route("/login", methods=["POST"])
 def login():
     # 폼: user_id, password
@@ -30,14 +29,35 @@ def login():
 
 @app.route("/signup", methods=["GET"])
 def render_signup():
+    return render_template("signup.html")
     # 회원가입 페이지
-    pass
-
 
 @app.route("/signup", methods=["POST"])
 def signup():
     # 회원가입 요청
-    pass
+    login_id = request.form.get('login_id')
+    username = request.form.get('username')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # 비밀번호 유효성 판단
+    if len(password) < 8:
+        flash("비밀번호는 8글자 이상이어야 합니다")
+        return redirect("/signup")
+    
+    elif password != confirm_password:
+        flash("비밀번호가 일치하지 않습니다")
+        return redirect("/signup")
+
+    # 인증 시킨 User 객체 반환
+    result = auth_signup(username, login_id, password)
+    
+    if isinstance(result, ServiceError):
+        flash("회원가입에 실패했습니다")
+        return redirect("/signup")
+    
+    # 회원가입 성공
+    return redirect("/login")
 
 
 @app.route("/logout", methods=["POST"])

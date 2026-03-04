@@ -9,5 +9,6 @@ def get_user_context(return_none: bool = False) -> User | None:
     return User(
         _id="000000000000000000000000",
         username="더미유저",
+        login_id="userID",
         password_hash="no_password",
     )

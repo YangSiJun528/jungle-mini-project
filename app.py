@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
+from model import project
+
 app = Flask(__name__)
 
 # 도커 컴포즈 배포 시 확인용
@@ -171,7 +173,10 @@ def render_feedbacks(project_id):
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
-    pass
+    print("===================================================")
+    print(project_id)
+    print(request.form.to_dict())
+    return redirect("/health")
 
 
 @app.route("/feedbacks/<feedback_id>/resolve", methods=["POST"])

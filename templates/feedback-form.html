@@ -5,7 +5,7 @@
 <h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
 <p>{{ project.content }}</p>
 
-<form action="/submit_feedback" method="POST">
+<form action="/projects/{{ project.id }}/feedbacks" method="POST">
     <div class="mb-3 border p-3">
         {% for test_case in project.test_cases %}
         <div class="mb-3 border p-3">

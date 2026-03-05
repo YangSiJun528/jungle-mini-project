@@ -90,7 +90,8 @@ def login():
         jwt_token,
         httponly=True,
         samesite="Lax",
-        max_age=3600)
+        max_age=3600*60)
+
     return resp
 
 

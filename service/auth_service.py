@@ -72,7 +72,7 @@ def create_access_token(user: User) -> str:
         "user_id": user._id,
         "username": user.username,
         "login_id": user.login_id,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=60)
+        "exp": datetime.now(timezone.utc) + timedelta(hours=60)
     }
     # 2) jwt.encode로 토큰 생성
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')

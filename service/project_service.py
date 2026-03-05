@@ -30,39 +30,53 @@ def project_get(project_id: str) -> Project | ServiceError:
 
 
 def project_list(
-    page: int, keyword: str | None, tag: str | None, sort_mode: str | None = "최신"
+        keyword: str | None, tag: str | None, sort_mode: str | None, page: int = 1,
 ) -> list[Project]:
-    page = request.args.get("page", default=1, type=int)
+    from pymongo import DESCENDING
+    size = 8
+    sort_options = {
+        # TODO: 이거 변수명 적절하게 수정하기
+        "latest": [("TODO생성시점", DESCENDING)],
+        "popular": [("TODO인기도?", DESCENDING), ("TODO생성시점", DESCENDING)],
+    }
 
-    query = {}
+    sort_params = "latest"
+    if sort_mode is not None:
+        sort_params = sort_mode
+
+    conditions = []
     if keyword:
-        #TODO: 키워드 기반 검색 조건 추가
-        query["$or"] = [
-            {"title": {"$regex": keyword, "$options": "i"}},
-            {"content": {"$regex": keyword, "$options": "i"}},
-        ]
+        conditions.append({
+            "$or": [
+                {"title": {"$regex": keyword, "$options": "i"}},
+                {"content": {"$regex": keyword, "$options": "i"}},
+            ]
+        })
     if tag:
-        #TODO: 태그 기반
-        query["tags"] = tag
+        conditions.append({"tags": {"$elemMatch": {"name": tag}}})
+    query = {"$and": conditions} if conditions else {}
 
-    project_results = []
-    if sort_mode:
-        if sort_mode == "최신":
-            #TODO: 최신 정렬 조건 추가 (created_at이 아직 정의되지 않아 없는 경우 ObjectId 기준으로 정렬될 수 있도록 유도함. ObjectId는 생성 시점이 포함되어 있어서 생성된 순서대로 정렬 가능)
-            projects = db_projects.find(query).sort([("created_at", -1), ("_id", -1)]).skip((page - 1) * DISPLAY_LIMIT).limit(DISPLAY_LIMIT)
-            
-        if sort_mode == "임박":
-            projects = db_projects.find(query).sort("expired_date", 1).skip((page - 1) * DISPLAY_LIMIT).limit(DISPLAY_LIMIT)
-        
-        for proj in projects:
-            proj["_id"] = str(proj["_id"])
-            project_results.append(Project(**proj))
+    assert sort_options[sort_params] is not None
+    sort = sort_options[sort_params]
+
+    project_results = db_projects.find(query).sort(sort).skip((page - 1) * size).limit(size)
 
     return project_results
 
 
-def pagination_info(page: int) -> dict:
-    tot_count = db_projects.count_documents({})
+def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict:
+    conditions = []
+    if keyword:
+        conditions.append({
+            "$or": [
+                {"title": {"$regex": keyword, "$options": "i"}},
+                {"content": {"$regex": keyword, "$options": "i"}},
+            ]
+        })
+    if tag:
+        conditions.append({"tag": {"$eq": tag}})
+
+    tot_count = db_projects.count_documents({"$and": conditions} if conditions else {})
     last_page_num = math.ceil(tot_count / DISPLAY_LIMIT)
 
     # 블록: 페이지 표시 단위를 의미

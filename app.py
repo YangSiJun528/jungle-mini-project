@@ -80,11 +80,13 @@ def logout():
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
     from service.project_service import project_list, pagination_info
-    projects = project_list(page=1, keyword=None, tag=None, sort_mode="최신")
     page = request.args.get("page", default=1, type=int)
-    pagination_info = pagination_info(page)
+    keyword = request.args.get("keyword", default=None, type=str)
+    tag = request.args.get("tag", default=None, type=str)
+    sort_mode = request.args.get("sort_mode", default=None, type=str)
+    projects = project_list(page=page, keyword=keyword, tag=tag, sort_mode=sort_mode)
+    pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
 
-    # TODO: 쿼리 파라미터 처리 필요
     return render_template("index.html", projects=projects, pagination_info=pagination_info)
 
 

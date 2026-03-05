@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mb-5 p-0">
-    <!-- TODO: form -->
+<div id="search-bar" class="container mb-4 p-0">
     <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 5fr;">
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
             {% set sort_mode = request.args.get("sort_mode") %}
@@ -41,6 +40,11 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="tag-display" class="container mb-3">
+    {% set tag = request.args.get("tag") %}
+    <span class="badge text-bg-light">{% if tag %}#{{ tag }}{% endif %}</span>
 </div>
 
 <div class="container p-0">

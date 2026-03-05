@@ -1,15 +1,18 @@
-from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
-from model.project import Project
-from model.tag import Tag
-from model.test_case import TestCase
-from service.project_service import project_create
-from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
-from datetime import datetime
-from common.dummy import get_user_context
-import jwt
-from common.error import ServiceError
 from model import project
 
+from common.error import ServiceError
+import jwt
+from common.dummy import get_user_context
+from datetime import datetime
+from service.auth_service import auth_signup, auth_login, create_access_token
+from service.project_service import project_create
+from model.test_case import TestCase
+from model.tag import Tag
+from model.project import Project
+from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
+from dotenv import load_dotenv
+from datetime import datetime
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
@@ -206,7 +209,7 @@ def create_project():
     test_cases = []
     for tc in testcases_input:
         if tc and tc.strip():
-            testcase = TestCase(id=str(uuid.uuid4()), content = tc.strip())
+            testcase = TestCase(id=str(uuid.uuid4()), content=tc.strip())
             test_cases.append(testcase)
 
     tags_input = request.form.get("tags", "")
@@ -216,8 +219,8 @@ def create_project():
             tag = Tag(name=t.strip())
             tags.append(tag)
 
-
     new = Project(
+
         _id = None,
         user_id = user_id,
         title = title,
@@ -228,18 +231,16 @@ def create_project():
         is_expired = False,
         test_cases = test_cases,
         tags = tags
+
     )
-    
+
     project_create(new)
 
     return redirect("/")
 
 
-
-
 @app.route("/projects/<project_id>/edit", methods=["GET"])
 def render_project_edit(project_id):
-    # 프로젝트 수정 폼 (소유자만 가능)
     pass
 
 

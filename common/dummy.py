@@ -1,11 +1,13 @@
 from model.user import User
+import os
 import jwt
 from flask import request, flash, make_response, redirect, url_for
 
 # 현재 인증 된 사용자 정보를 불려오는 역할인데, 개발 도중에는 더미로 사용. 인증 파트 팀원이 구현하기
 # 로그인이 안된 상태면 None을 반환하고, 아니면 더미 User 객체를 반환. 바꿔가면서 UI 테스트 ㄱㄱ
 
-SECRET_KEY = "jungle_mini_project2131236532dsafxd24weqsadasd"
+SECRET_KEY = os.environ.get(
+    "JWT_SECRET_KEY", "fallback_secret_key_for_local_dev")
 
 
 def get_user_context() -> User | None:

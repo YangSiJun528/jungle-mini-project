@@ -1,5 +1,4 @@
 from pymongo.errors import DuplicateKeyError
-
 from common.db import db_users
 from common.error import ServiceError
 from common import error
@@ -7,6 +6,10 @@ from model import User
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
+import os
+
+SECRET_KEY = os.environ.get(
+    "JWT_SECRET_KEY", "fallback_secret_key_for_local_dev")
 
 
 def auth_signup(
@@ -33,7 +36,7 @@ def auth_signup(
             password_hash=hashed_password_str,
             _id=str(result.inserted_id))
 
-        # 중복 ID에 대한 처리
+        # 3. 중복 ID에 대한 처리
     except DuplicateKeyError:
         return error.DUPLICATE_ID_COMMON
     except Exception as e:
@@ -61,9 +64,6 @@ def auth_login(user_id: str, password: str) -> User | ServiceError:
     return User(username=id_exists["username"],
                 login_id=id_exists["login_id"],
                 _id=str(id_exists["_id"]))
-
-
-SECRET_KEY = "jungle_mini_project2131236532dsafxd24weqsadasd"
 
 
 def create_access_token(user: User) -> str:

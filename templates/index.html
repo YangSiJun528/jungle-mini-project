@@ -24,7 +24,8 @@
         <div class="d-flex align-items-center">
             <div class="d-flex align-items-center position-relative w-100 me-3">
                 <input id="search-input" name="keyword" type="search" class="form-control" placeholder="Search..."
-                    aria-label="Search">
+                    aria-label="Search" {% set keyword=request.args.get("keyword") %} {% if keyword
+                    %}value="{{ keyword }}" {% endif %}>
                 <button class="btn bg-white border" id="button-addon2" type="button" onclick="search()">
                     <svg class="bi bi-search" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
                         xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +71,7 @@
         {% if cur_page <= pagination_info.last_page_num %} <li
             class="page-item {% if cur_page == pagination_info.page %}active{% endif %}">
             <a class="page-link" href="{{ modify_query(page=cur_page) }}" {% if cur_page==pagination_info.page
-                %}aria-current="page" {% endif %}>{{ cur_page }}</a>
+                %}aria-current="{{ pagination_info.page }}" {% endif %}>{{ cur_page }}</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -89,12 +90,7 @@
         const url = new URL(window.location.href);
         const keyword = $("#search-input").val().trim();
 
-        if (!keyword) {
-            alert("검색어를 입력해주세요.");
-            return;
-        }
         url.searchParams.set("keyword", keyword);
-
         window.location.href = url.toString();
     }
 </script>

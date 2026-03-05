@@ -18,6 +18,9 @@
 
     {% if user_context and project.user_id == user_context._id %}
         <a href="/projects/{{ project._id }}/edit" class="btn btn-outline-secondary">수정</a>
+        <form action="/projects/{{ project._id }}/delete" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger">삭제</button>
+        </form>
     {% endif %}
 </div>
 

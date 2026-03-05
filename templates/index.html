@@ -4,11 +4,16 @@
 <div class="container mb-5 p-0">
     <div id="utility-bar" class="d-flex justify-content-between">
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-            <input type="radio" class="btn-check" name="btnradio" id="sort-latest" autocomplete="on" checked>
-            <label class="btn btn-outline-primary " for="sort-latest">최신순</label>
+            {% set sort_mode = request.args.get("sort_mode") %}
+            <input type="radio" class="btn-check" name="btnradio" id="sort-latest" autocomplete="on" {% if (sort_mode == 'latest') or (sort_mode == None) %}checked{% endif %}>
+            <label class="btn btn-outline-primary p-0" for="sort-latest">
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle" href="{{ modify_query(sort_mode='latest') }}">최신순</a>
+            </label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="sort-urgent" autocomplete="on">
-            <label class="btn btn-outline-primary" for="sort-urgent">마감 임박순</label>
+            <input type="radio" class="btn-check" name="btnradio" id="sort-deadline" autocomplete="on" {% if sort_mode == 'deadline' %}checked{% endif %}>
+            <label class="btn btn-outline-primary p-0" for="sort-deadline">
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle" href="{{ modify_query(sort_mode='deadline') }}">마감 임박순</a>
+            </label>
         </div>
 
         <a href="#" class="btn btn-primary">프로젝트 등록</a>

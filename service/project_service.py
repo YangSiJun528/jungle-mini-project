@@ -129,6 +129,26 @@ def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict
         "last_page_num": last_page_num,
     }
 
+def testcase_deactivate(user_id: str, project_id: str, testcase_id: str) -> bool | ServiceError:
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id), "user_id": user_id, "test_cases.id": testcase_id},
+        {"$set": {"test_cases.$.is_active": False}}
+    )
+    if result.matched_count == 0:
+        return PROJECT_NOT_FOUND
+    return True
+
+
+def testcase_hard_delete(user_id: str, project_id: str, testcase_id: str) -> bool | ServiceError:
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id), "user_id": user_id, "test_cases.id": testcase_id},
+        {"$pull": {"test_cases": {"id": testcase_id}}}
+    )
+    if result.matched_count == 0:
+        return PROJECT_NOT_FOUND
+    if result.modified_count == 0:
+        return ServiceError("삭제할 테스트케이스가 없습니다.")
+    return True
 
 def project_get_my(user_id: str) -> list[Project]:
     pass

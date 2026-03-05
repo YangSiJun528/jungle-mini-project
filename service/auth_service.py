@@ -2,11 +2,14 @@ from common.db import db_users
 from common.error import ServiceError
 from common import error
 from model import User
+from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
 
-def auth_signup(username: str, user_id: str, password: str) -> User | ServiceError:
+def auth_signup(
+    username: str, user_id: str, password: str
+) -> User | ServiceError:
     # 1. 아이디 중복 체크
     existing_user = db_users.find_one({"login_id": user_id})
     if existing_user:
@@ -44,8 +47,8 @@ def auth_login(user_id: str, password: str) -> User | ServiceError:
     hashed_password = id_exists['password_hash']
     byted_hashed_password = hashed_password.encode('utf-8')
 
-    is_password_match = bcrypt.checkpw(password.encode("utf-8"),
-                                       byted_hashed_password)
+    is_password_match = bcrypt.checkpw(
+        password.encode("utf-8"), byted_hashed_password)
     # 비밀번호가 일치하지 않으면 에러메시지
     if not is_password_match:
         return error.INVALID_CREDENTIALS_COMMON
@@ -54,9 +57,19 @@ def auth_login(user_id: str, password: str) -> User | ServiceError:
                 login_id=id_exists["login_id"],
                 _id=str(id_exists["_id"]))
 
+SECRET_KEY = "jungle mini project2131236532dsafxd24weqsadasd"
+
 def create_access_token(user: User) -> str:
+    
     # 1) payload 만들기 (user_id, login_id, exp)
+    payload = {
+        "user_id": user._id,
+        "login_id": user.login_id,
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1)
+    }
+
     # 2) jwt.encode로 토큰 생성
+    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
 
 def auth_get_user(user_id: str) -> User | ServiceError:

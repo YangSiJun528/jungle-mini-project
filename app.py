@@ -87,22 +87,23 @@ def create_project():
     url = request.form["url"]
 
     testcases_input = request.form.getlist("testcases[]")
-    test_cases = [
-        Testcase(description=tc.strip())
-        for tc in testcases_input
-        if tc and tc.strip()
-    ]
+    test_cases = []
+    for tc in testcases_input:
+        if tc and tc.strip():
+            testcase = TestCase(description = tc.strip())
+            test_cases.append(testcase)
 
     tags_input = request.form.get("tags", "")
-    tags = [
-        Tag(name=t.strip())
-        for t in tags_input.split("#")
-        if t.strip()
-    ]
+    tags = []
+    for t in tags_input.split("#"):
+        if t.strip():
+            tag = Tag(name=t.strip())
+            tags.append(tag)
+
 
     new = Project(
         _id = None,
-        titele = title,
+        title = title,
         content = content,
         url = url,
         expired_date = datetime.now(),

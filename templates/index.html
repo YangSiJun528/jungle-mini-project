@@ -71,7 +71,7 @@
         {% if cur_page <= pagination_info.last_page_num %} <li
             class="page-item {% if cur_page == pagination_info.page %}active{% endif %}">
             <a class="page-link" href="{{ modify_query(page=cur_page) }}" {% if cur_page==pagination_info.page
-                %}aria-current="{{ pagination_info.page }}" {% endif %}>{{ cur_page }}</a>
+                %}aria-current="page" {% endif %}>{{ cur_page }}</a>
             </li>
             {% endif %}
             {% endfor %}

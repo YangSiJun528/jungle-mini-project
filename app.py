@@ -9,15 +9,20 @@ app = Flask(__name__)
 app.secret_key = "secret_key"
 
 # 전역 컨텍스트
+
+
 @app.context_processor
 def inject_user_context():
     # print(f"유저 정보: {get_user_context(return_none=False)}")
     return {"user_context": get_user_context(True)}
 
 # 도커 컴포즈 배포 시 확인용
+
+
 @app.route("/health")
 def health():
     return "ok"
+
 
 @app.template_global()
 def modify_query(**kwargs):
@@ -30,9 +35,11 @@ def modify_query(**kwargs):
 # 인증
 # ------------------------
 
+
 @app.route("/login", methods=["GET"])
 def render_login():
     return render_template("login.html")
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -55,7 +62,7 @@ def login():
     # ID,PW 유효성 검증 완료 => 토큰 생성
     jwt_token = create_access_token(result)
 
-    resp = redirect("/login")
+    resp = redirect("/")
 
     resp.set_cookie(
         'access_token',
@@ -70,6 +77,7 @@ def login():
 def render_signup():
     return render_template("signup.html")
     # 회원가입 페이지
+
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -102,7 +110,7 @@ def signup():
 @app.route("/logout", methods=["POST"])
 def logout():
     # 로그아웃 요청
-    resp = make_response(redirect(url_for('login')))
+    resp = make_response(redirect(url_for('render_project_list')))
     resp.delete_cookie('access_token')
     return resp
 
@@ -119,7 +127,8 @@ def render_project_list():
     keyword = request.args.get("keyword", default=None, type=str)
     tag = request.args.get("tag", default=None, type=str)
     sort_mode = request.args.get("sort_mode", default=None, type=str)
-    projects = project_list(page=page, keyword=keyword, tag=tag, sort_mode=sort_mode)
+    projects = project_list(page=page, keyword=keyword,
+                            tag=tag, sort_mode=sort_mode)
     pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
 
     return render_template("index.html", projects=projects, pagination_info=pagination_info)
@@ -132,7 +141,8 @@ def render_project_detail(project_id):
     project = project_get(project_id)
 
     for test_case in project.test_cases:
-        test_case.feedbacks = sorted(test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
+        test_case.feedbacks = sorted(
+            test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
 
     if isinstance(project, ServiceError):
         flash("프로젝트를 찾을 수 없습니다. 프로젝트가 삭제되었거나 잘못된 프로젝트입니다.")
@@ -149,6 +159,7 @@ def render_my_projects():
 # ------------------------
 # 프로젝트 생성, 수정, 삭제
 # ------------------------
+
 
 @app.route("/projects/new", methods=["GET"])
 def render_project_form():
@@ -196,6 +207,7 @@ def render_tag_search(tag_name):
 # 테스트케이스
 # ------------------------
 
+
 @app.route("/projects/<project_id>/testcases", methods=["POST"])
 def add_testcase(project_id):
     pass
@@ -224,9 +236,10 @@ def render_feedbacks(project_id):
     # 실제
     project = project_get(project_id)
 
-    assert isinstance(project, Project) #TODO(sijun-yang): project 조회 예외 처리
+    assert isinstance(project, Project)  # TODO(sijun-yang): project 조회 예외 처리
 
     return render_template("feedback-form.html", project=project)
+
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
@@ -234,7 +247,8 @@ def submit_feedbacks(project_id):
     from service.feedback_service import feedback_submit
 
     form = request.form
-    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+    test_case_ids = [key.replace("result_", "")
+                     for key in form if key.startswith("result_")]
 
     feedbacks = []
     for tc_id in test_case_ids:
@@ -263,6 +277,7 @@ def resolve_feedback(feedback_id):
 def delete_feedback(feedback_id):
     # 소유자만 삭제 가능 (어뷰징 방지)
     pass
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

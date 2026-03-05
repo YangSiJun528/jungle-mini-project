@@ -2,21 +2,43 @@
 
 {% block content %}
 <div class="container mb-5 p-0">
-    <div id="utility-bar" class="d-flex justify-content-between">
+    <!-- TODO: form -->
+    <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 5fr;">
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
             {% set sort_mode = request.args.get("sort_mode") %}
-            <input type="radio" class="btn-check" name="btnradio" id="sort-latest" autocomplete="on" {% if (sort_mode == 'latest') or (sort_mode == None) %}checked{% endif %}>
+            <input type="radio" class="btn-check" name="btnradio" id="sort-latest" autocomplete="on" {% if
+                (sort_mode=='latest' ) or (sort_mode==None) %}checked{% endif %}>
             <label class="btn btn-outline-primary p-0" for="sort-latest">
-                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle" href="{{ modify_query(sort_mode='latest') }}">최신순</a>
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle"
+                    href="{{ modify_query(sort_mode='latest') }}">최신순</a>
             </label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="sort-deadline" autocomplete="on" {% if sort_mode == 'deadline' %}checked{% endif %}>
+            <input type="radio" class="btn-check" name="btnradio" id="sort-deadline" autocomplete="on" {% if
+                sort_mode=='deadline' %}checked{% endif %}>
             <label class="btn btn-outline-primary p-0" for="sort-deadline">
-                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle" href="{{ modify_query(sort_mode='deadline') }}">마감 임박순</a>
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle"
+                    href="{{ modify_query(sort_mode='deadline') }}">마감 임박순</a>
             </label>
         </div>
 
-        <a href="#" class="btn btn-primary">프로젝트 등록</a>
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center position-relative w-100 me-3">
+                <input id="search-input" name="keyword" type="search" class="form-control" placeholder="Search..."
+                    aria-label="Search">
+                <button class="btn bg-white border" id="button-addon2" type="button" onclick="search()">
+                    <svg class="bi bi-search" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-shrink-0 dropdown">
+                <a href="/projects/new" class="btn btn-primary">프로젝트 등록</a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -45,21 +67,35 @@
         </li>
 
         {% for cur_page in range(pagination_info.block_start, pagination_info.block_end + 1) %}
-            {% if cur_page <= pagination_info.last_page_num %}
-                <li class="page-item {% if cur_page == pagination_info.page %}active{% endif %}">
-                    <a class="page-link" href="{{ modify_query(page=cur_page) }}" {% if cur_page == pagination_info.page %}aria-current="page"{% endif %}>{{ cur_page }}</a>
-                </li>
+        {% if cur_page <= pagination_info.last_page_num %} <li
+            class="page-item {% if cur_page == pagination_info.page %}active{% endif %}">
+            <a class="page-link" href="{{ modify_query(page=cur_page) }}" {% if cur_page==pagination_info.page
+                %}aria-current="page" {% endif %}>{{ cur_page }}</a>
+            </li>
             {% endif %}
-        {% endfor %}
+            {% endfor %}
 
-        <li class="page-item {% if pagination_info.block_end >= pagination_info.last_page_num%}disabled{% endif %}">
-            <a class="page-link" href="#">Next</a>
-        </li>
+            <li class="page-item {% if pagination_info.block_end >= pagination_info.last_page_num%}disabled{% endif %}">
+                <a class="page-link" href="#">Next</a>
+            </li>
     </ul>
 </nav>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<script>
+    function search() {
+        const url = new URL(window.location.href);
+        const keyword = $("#search-input").val().trim();
 
+        if (!keyword) {
+            alert("검색어를 입력해주세요.");
+            return;
+        }
+        url.searchParams.set("keyword", keyword);
+
+        window.location.href = url.toString();
+    }
+</script>
 {% endblock %}

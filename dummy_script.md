@@ -22,6 +22,7 @@ db.projects.drop()
 ```
 db.projects.insertMany([
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "배달의민족",
     content: "배달의민족 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/baemin",
@@ -37,6 +38,7 @@ db.projects.insertMany([
     tags: [{ name: "웹" }, { name: "모바일" }]
   },
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "당근마켓",
     content: "당근마켓 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/daangn",
@@ -53,6 +55,7 @@ db.projects.insertMany([
     tags: [{ name: "모바일" }, { name: "프론트엔드" }]
   },
   {
+    user_id: ObjectId("bbbbbbbbbbbbbbbbbbbbbbbb"),
     title: "토스",
     content: "토스 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/toss",
@@ -67,6 +70,7 @@ db.projects.insertMany([
     tags: [{ name: "모바일" }, { name: "백엔드" }, { name: "API" }]
   },
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "카카오톡",
     content: "카카오톡 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/kakaotalk",
@@ -84,6 +88,7 @@ db.projects.insertMany([
     tags: [{ name: "모바일" }, { name: "UI" }]
   },
   {
+    user_id: ObjectId("bbbbbbbbbbbbbbbbbbbbbbbb"),
     title: "네이버지도",
     content: "네이버지도 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/navermap",
@@ -99,6 +104,7 @@ db.projects.insertMany([
     tags: [{ name: "웹" }, { name: "모바일" }, { name: "API" }]
   },
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "쿠팡",
     content: "쿠팡 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/coupang",
@@ -117,6 +123,7 @@ db.projects.insertMany([
     tags: [{ name: "웹" }, { name: "백엔드" }]
   },
   {
+    user_id: ObjectId("bbbbbbbbbbbbbbbbbbbbbbbb"),
     title: "야놀자",
     content: "야놀자 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/yanolja",
@@ -131,6 +138,7 @@ db.projects.insertMany([
     tags: [{ name: "웹" }, { name: "QA" }]
   },
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "직방",
     content: "직방 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/zigbang",
@@ -147,6 +155,7 @@ db.projects.insertMany([
     tags: [{ name: "웹" }, { name: "프론트엔드" }, { name: "API" }]
   },
   {
+    user_id: ObjectId("bbbbbbbbbbbbbbbbbbbbbbbb"),
     title: "번개장터",
     content: "번개장터 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/bunjang",
@@ -164,6 +173,7 @@ db.projects.insertMany([
     tags: [{ name: "모바일" }, { name: "성능" }]
   },
   {
+    user_id: ObjectId("aaaaaaaaaaaaaaaaaaaaaaaa"),
     title: "오늘의집",
     content: "오늘의집 서비스의 QA 테스트 프로젝트입니다. 주요 기능에 대한 피드백을 수집합니다.",
     url: "https://example.com/ohouse",

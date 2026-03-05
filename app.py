@@ -32,14 +32,13 @@ def login():
     
     # 로그인 인증 서비스 호출
     result = auth_login(login_id, password)
-    # try:
-    #     user, token = auth_login(login_id, password)
-    # except ServiceError:
-    #     flash("아이디/비밀번호가 올바르지 않습니다")
-    #     return redirect("/login")
+
+    if isinstance(result, ServiceError):
+        flash(result.message)
+        return redirect("/login")
     
     # 로그인 성공 시, 메인페이지
-    return redirect("/login")
+    return redirect("/")
 
 
 @app.route("/signup", methods=["GET"])
@@ -68,7 +67,7 @@ def signup():
     result = auth_signup(username, login_id, password)
     
     if isinstance(result, ServiceError):
-        flash("회원가입에 실패했습니다")
+        flash(result.message)
         return redirect("/signup")
     
     # 회원가입 성공

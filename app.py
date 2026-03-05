@@ -162,6 +162,7 @@ def render_project_form():
 
 @app.route("/projects", methods=["POST"])
 def create_project():
+    import uuid
     title = request.form["title"]
     content = request.form["content"]
     url = request.form["url"]
@@ -170,7 +171,7 @@ def create_project():
     test_cases = []
     for tc in testcases_input:
         if tc and tc.strip():
-            testcase = TestCase(description = tc.strip())
+            testcase = TestCase(id=str(uuid.uuid4()), content = tc.strip())
             test_cases.append(testcase)
 
     tags_input = request.form.get("tags", "")

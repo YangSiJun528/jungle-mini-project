@@ -35,7 +35,6 @@ def project_list(
     from pymongo import DESCENDING
     size = 8
     sort_options = {
-        # TODO: 이거 변수명 적절하게 수정하기
         "latest": [("TODO생성시점", DESCENDING)],
         "popular": [("TODO인기도?", DESCENDING), ("TODO생성시점", DESCENDING)],
     }

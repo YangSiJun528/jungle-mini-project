@@ -21,6 +21,8 @@ PROJECT_NOT_FOUND = ServiceError(2001, "프로젝트를 찾을 수 없습니다.
 # 3xxx: Feedback
 FEEDBACK_COMMON = ServiceError(3000, "에러 예시")
 FEEDBACK_UPDATE_FAILED = ServiceError(3001, "피드백 저장에 실패했습니다.")
+FEEDBACK_NOT_FOUND = ServiceError(3002, "피드백을 찾을 수 없습니다.")
+FEEDBACK_NOT_RESOLVED = ServiceError(3003, "해결되지 않은 피드백은 삭제할 수 없습니다.")
 
 # 4xxx: TestCase
 TESTCASE_COMMON = ServiceError(4000, "에러 예시")

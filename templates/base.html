@@ -14,9 +14,29 @@
             <span class="fs-4">정글러 QA</span>
         </a>
         <ul class="nav nav-pills">
-            <li class="nav-item"><a href="#" class="nav-link">로그인</a></li>
+            {% if user_context %}
+                <li class="nav-item"><span class="nav-link text-muted">이름: {{ user_context.username }}</span></li>
+                <li class="nav-item"><a href="/my-projects" class="nav-link">마이페이지</a></li>
+                <li class="nav-item">
+                    <form action="/logout" method="POST" class="d-inline">
+                        <button type="submit" class="nav-link btn btn-link">로그아웃</button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="nav-item"><a href="/login" class="nav-link">로그인</a></li>
+            {% endif %}
         </ul>
     </header>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div>{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="jg_main">
         {% block content %}{% endblock %}
     </div>

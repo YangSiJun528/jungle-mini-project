@@ -1,10 +1,18 @@
 from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
+from common.dummy import get_user_context
+
 from common.error import ServiceError
 from model import project
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
+
+# 전역 컨텍스트
+@app.context_processor
+def inject_user_context():
+    return {"user_context": get_user_context(True)}
+
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")
 def health():

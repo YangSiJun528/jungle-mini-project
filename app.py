@@ -36,7 +36,7 @@ def jwt__exception_handler(err):
 @app.context_processor
 def inject_user_context():
     # print(f"유저 정보: {get_user_context(return_none=False)}")
-    return {"user_context": get_user_context(True)}
+    return {"user_context": get_user_context()}
 
 # 도커 컴포즈 배포 시 확인용
 

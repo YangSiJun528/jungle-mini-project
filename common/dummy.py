@@ -8,7 +8,7 @@ from flask import request, flash, make_response, redirect, url_for
 SECRET_KEY = "jungle_mini_project2131236532dsafxd24weqsadasd"
 
 
-def get_user_context(return_none: bool = False) -> User | None:
+def get_user_context() -> User | None:
 
     token = request.cookies.get('access_token')
 

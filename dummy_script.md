@@ -27,6 +27,7 @@ db.projects.insertMany([
     url: "https://example.com/baemin",
     expired_date: new Date("2026-06-01"),
     is_expired: false,
+    created_at: new Date("2026-01-10"),
     test_cases: [
       { id: crypto.randomUUID(), content: "로그인이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: false, error_reason: "버튼 클릭 시 반응이 없음", is_resolved: false }] },
       { id: crypto.randomUUID(), content: "주문 기능이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: true }] },
@@ -41,6 +42,7 @@ db.projects.insertMany([
     url: "https://example.com/daangn",
     expired_date: new Date("2026-07-15"),
     is_expired: false,
+    created_at: new Date("2026-01-15"),
     test_cases: [
       { id: crypto.randomUUID(), content: "회원가입 시 유효성 검사가 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: true }, { id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "게시글 작성이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: false, error_reason: "500 에러 발생", is_resolved: false }] },
@@ -56,6 +58,7 @@ db.projects.insertMany([
     url: "https://example.com/toss",
     expired_date: new Date("2026-05-20"),
     is_expired: false,
+    created_at: new Date("2026-01-22"),
     test_cases: [
       { id: crypto.randomUUID(), content: "로그인이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "송금 기능이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: false, error_reason: "잘못된 데이터가 표시됨", is_resolved: false }] },
@@ -69,6 +72,7 @@ db.projects.insertMany([
     url: "https://example.com/kakaotalk",
     expired_date: new Date("2026-08-30"),
     is_expired: false,
+    created_at: new Date("2026-02-01"),
     test_cases: [
       { id: crypto.randomUUID(), content: "메시지 전송이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: true }, { id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "프로필 수정이 정상적으로 반영되어야 한다.", feedbacks: [] },
@@ -85,6 +89,7 @@ db.projects.insertMany([
     url: "https://example.com/navermap",
     expired_date: new Date("2026-09-10"),
     is_expired: false,
+    created_at: new Date("2026-02-05"),
     test_cases: [
       { id: crypto.randomUUID(), content: "지도 로딩이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "길찾기 기능이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: false, error_reason: "페이지가 무한 로딩됨", is_resolved: false }, { id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
@@ -99,6 +104,7 @@ db.projects.insertMany([
     url: "https://example.com/coupang",
     expired_date: new Date("2026-04-15"),
     is_expired: false,
+    created_at: new Date("2026-02-10"),
     test_cases: [
       { id: crypto.randomUUID(), content: "장바구니 추가가 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: false, error_reason: "버튼 클릭 시 반응이 없음", is_resolved: false }] },
       { id: crypto.randomUUID(), content: "결제 프로세스가 정상적으로 완료되어야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: false, error_reason: "500 에러 발생", is_resolved: false }] },
@@ -116,6 +122,7 @@ db.projects.insertMany([
     url: "https://example.com/yanolja",
     expired_date: new Date("2026-10-01"),
     is_expired: false,
+    created_at: new Date("2026-02-18"),
     test_cases: [
       { id: crypto.randomUUID(), content: "예약 기능이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "결제 프로세스가 정상적으로 완료되어야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: false, error_reason: "타임아웃 에러 발생", is_resolved: false }] },
@@ -129,6 +136,7 @@ db.projects.insertMany([
     url: "https://example.com/zigbang",
     expired_date: new Date("2026-06-20"),
     is_expired: false,
+    created_at: new Date("2026-02-25"),
     test_cases: [
       { id: crypto.randomUUID(), content: "지도 기반 검색이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: false, error_reason: "잘못된 데이터가 표시됨", is_resolved: false }] },
       { id: crypto.randomUUID(), content: "매물 상세 페이지가 올바르게 표시되어야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
@@ -144,6 +152,7 @@ db.projects.insertMany([
     url: "https://example.com/bunjang",
     expired_date: new Date("2026-07-01"),
     is_expired: false,
+    created_at: new Date("2026-03-01"),
     test_cases: [
       { id: crypto.randomUUID(), content: "게시글 작성이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "채팅 기능이 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: false, error_reason: "페이지가 무한 로딩됨", is_resolved: false }] },
@@ -160,6 +169,7 @@ db.projects.insertMany([
     url: "https://example.com/ohouse",
     expired_date: new Date("2026-11-30"),
     is_expired: false,
+    created_at: new Date("2026-03-05"),
     test_cases: [
       { id: crypto.randomUUID(), content: "메인 페이지가 정상적으로 로딩되어야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }] },
       { id: crypto.randomUUID(), content: "이미지 업로드가 정상적으로 동작해야 한다.", feedbacks: [{ id: crypto.randomUUID(), is_ok: true, error_reason: null, is_resolved: false }, { id: crypto.randomUUID(), is_ok: false, error_reason: "타임아웃 에러 발생", is_resolved: false }] },

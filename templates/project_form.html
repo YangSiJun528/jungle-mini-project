@@ -149,8 +149,21 @@
                   <div id="inactive-tc-list">
                     {% if inactive_tcs %}
                       {% for tc in inactive_tcs %}
-                        <div class="d-flex gap-2 mb-2">
+                        <div
+                          class="d-flex gap-2 mb-2 testcase-row testcase-inactive"
+                          data-project-id="{{ project._id }}"
+                          data-tc-id="{{ tc.id }}"
+                          data-content="{{ tc.content|e }}"
+                        >
                           <input class="form-control" value="{{ tc.content }}" readonly>
+
+                          <button
+                            type="button"
+                            class="btn btn-outline-success btn-sm btn-restore"
+                          >
+                            복구
+                          </button>
+
                           <span class="badge text-bg-secondary align-self-center">비활성</span>
                         </div>
                       {% endfor %}
@@ -162,13 +175,26 @@
 
                 <!-- 삭제 -->
                 <div class="mb-3" id="deleted-tc-section">
-                  <div class="mb-2 fw-semibold">삭제된 테스트케이스</div>
+                  <div class="mb-2 fw-semibold">삭제할 테스트케이스</div>
 
                   <div id="deleted-tc-list">
                     {% if deleted_tcs %}
                       {% for tc in deleted_tcs %}
-                        <div class="d-flex gap-2 mb-2">
+                        <div
+                          class="d-flex gap-2 mb-2 testcase-row testcase-deleted"
+                          data-project-id="{{ project._id }}"
+                          data-tc-id="{{ tc.id }}"
+                          data-content="{{ tc.content|e }}"
+                        >
                           <input class="form-control" value="{{ tc.content }}" readonly>
+
+                          <button
+                            type="button"
+                            class="btn btn-outline-success btn-sm btn-restore"
+                          >
+                            복구
+                          </button>
+
                           <span class="badge text-bg-danger align-self-center">삭제</span>
                         </div>
                       {% endfor %}
@@ -180,6 +206,7 @@
 
                 <div class="form-text text-muted">
                   수정 화면에서는 테스트케이스 내용 수정은 불가하고, 비활성화/삭제만 가능합니다.
+                  (복구는 화면에서만 반영됨)
                 </div>
 
               {% else %}
@@ -227,66 +254,130 @@ function addTestcase() {
 
 {% if project %}
 <script>
-
 function ensureEmptyHidden(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
 
-function maybeShowEmptyIfNoRows() {
-  const activeSection = document.getElementById("active-tc-section");
-  const rows = activeSection.querySelectorAll(".testcase-row");
+function maybeShowActiveEmptyIfNoRows() {
+  const section = document.getElementById("active-tc-section");
+  const rows = section.querySelectorAll(".testcase-row");
   if (rows.length === 0) {
     if (!document.getElementById("active-empty")) {
       const div = document.createElement("div");
       div.className = "text-muted";
       div.id = "active-empty";
       div.textContent = "활성 테스트케이스가 없습니다.";
-      activeSection.appendChild(div);
+      section.appendChild(div);
     }
   }
 }
 
-function appendInactive(content) {
+function maybeShowEmptyForList(listId, emptyId, emptyText) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+
+  const rows = list.querySelectorAll(".testcase-row");
+  if (rows.length === 0) {
+    if (!document.getElementById(emptyId)) {
+      const div = document.createElement("div");
+      div.className = "text-muted";
+      div.id = emptyId;
+      div.textContent = emptyText;
+      list.appendChild(div);
+    }
+  }
+}
+
+function appendInactive(projectId, tcId, content) {
   const list = document.getElementById("inactive-tc-list");
   ensureEmptyHidden("inactive-empty");
 
   const row = document.createElement("div");
-  row.className = "d-flex gap-2 mb-2";
+  row.className = "d-flex gap-2 mb-2 testcase-row testcase-inactive";
+  row.dataset.projectId = projectId;
+  row.dataset.tcId = tcId;
+  row.dataset.content = content;
 
   const input = document.createElement("input");
   input.className = "form-control";
   input.value = content;
   input.readOnly = true;
+
+  const restoreBtn = document.createElement("button");
+  restoreBtn.type = "button";
+  restoreBtn.className = "btn btn-outline-success btn-sm btn-restore";
+  restoreBtn.textContent = "복구";
 
   const badge = document.createElement("span");
   badge.className = "badge text-bg-secondary align-self-center";
   badge.textContent = "비활성";
 
   row.appendChild(input);
+  row.appendChild(restoreBtn);
   row.appendChild(badge);
   list.appendChild(row);
 }
 
-function appendDeleted(content) {
+function appendDeleted(projectId, tcId, content) {
   const list = document.getElementById("deleted-tc-list");
   ensureEmptyHidden("deleted-empty");
 
   const row = document.createElement("div");
-  row.className = "d-flex gap-2 mb-2";
+  row.className = "d-flex gap-2 mb-2 testcase-row testcase-deleted";
+  row.dataset.projectId = projectId;
+  row.dataset.tcId = tcId;
+  row.dataset.content = content;
 
   const input = document.createElement("input");
   input.className = "form-control";
   input.value = content;
   input.readOnly = true;
 
+  const restoreBtn = document.createElement("button");
+  restoreBtn.type = "button";
+  restoreBtn.className = "btn btn-outline-success btn-sm btn-restore";
+  restoreBtn.textContent = "복구";
+
   const badge = document.createElement("span");
   badge.className = "badge text-bg-danger align-self-center";
   badge.textContent = "삭제";
 
   row.appendChild(input);
+  row.appendChild(restoreBtn);
   row.appendChild(badge);
   list.appendChild(row);
+}
+
+function appendActive(projectId, tcId, content) {
+  const section = document.getElementById("active-tc-section");
+  ensureEmptyHidden("active-empty");
+
+  const row = document.createElement("div");
+  row.className = "d-flex gap-2 mb-2 testcase-row";
+  row.dataset.projectId = projectId;
+  row.dataset.tcId = tcId;
+  row.dataset.content = content;
+
+  const input = document.createElement("input");
+  input.className = "form-control";
+  input.value = content;
+  input.readOnly = true;
+
+  const deactivateBtn = document.createElement("button");
+  deactivateBtn.type = "button";
+  deactivateBtn.className = "btn btn-outline-warning btn-sm btn-deactivate";
+  deactivateBtn.textContent = "비활성화";
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className = "btn btn-outline-danger btn-sm btn-delete";
+  deleteBtn.textContent = "삭제";
+
+  row.appendChild(input);
+  row.appendChild(deactivateBtn);
+  row.appendChild(deleteBtn);
+  section.appendChild(row);
 }
 
 async function postAction(url, btn) {
@@ -299,13 +390,10 @@ async function postAction(url, btn) {
       method: "POST",
       headers: {
         "Accept": "application/json"
-      
-        // "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
       },
       credentials: "same-origin"
     });
 
-    // 204면 body 없음. 200 JSON이면 {ok:true} 같은거 기대.
     if (!res.ok) {
       let msg = "요청 실패";
       try {
@@ -315,7 +403,6 @@ async function postAction(url, btn) {
       throw new Error(msg);
     }
 
-    // ok
     return true;
   } finally {
     btn.disabled = false;
@@ -323,11 +410,11 @@ async function postAction(url, btn) {
   }
 }
 
-// 이벤트 위임(버튼이 많아도 안정적)
 document.addEventListener("click", async (e) => {
   const deactivateBtn = e.target.closest(".btn-deactivate");
   const deleteBtn = e.target.closest(".btn-delete");
-  if (!deactivateBtn && !deleteBtn) return;
+  const restoreBtn = e.target.closest(".btn-restore");
+  if (!deactivateBtn && !deleteBtn && !restoreBtn) return;
 
   const row = e.target.closest(".testcase-row");
   if (!row) return;
@@ -336,19 +423,20 @@ document.addEventListener("click", async (e) => {
   const tcId = row.dataset.tcId;
   const content = row.dataset.content || "";
 
+  // 1) 활성 -> 비활성 (서버 유지)
   if (deactivateBtn) {
     const ok = await postAction(`/projects/${projectId}/testcases/${tcId}/deactivate`, deactivateBtn)
       .catch(err => { alert(err.message); return false; });
 
     if (!ok) return;
 
-    // DOM 갱신: 활성 row 제거 + 비활성 섹션에 추가
     row.remove();
-    appendInactive(content);
-    maybeShowEmptyIfNoRows();
+    appendInactive(projectId, tcId, content);
+    maybeShowActiveEmptyIfNoRows();
     return;
   }
 
+  // 2) 활성 -> 삭제 (서버 유지)
   if (deleteBtn) {
     if (!confirm("정말 삭제하시겠습니까?")) return;
 
@@ -357,10 +445,19 @@ document.addEventListener("click", async (e) => {
 
     if (!ok) return;
 
-    // DOM 갱신: 활성 row 제거 + 삭제 섹션에 추가
     row.remove();
-    appendDeleted(content);
-    maybeShowEmptyIfNoRows();
+    appendDeleted(projectId, tcId, content);
+    maybeShowActiveEmptyIfNoRows();
+    return;
+  }
+
+  // 3) 비활성/삭제 -> 활성 (서버 없이 화면만 복구)
+  if (restoreBtn) {
+    row.remove();
+    appendActive(projectId, tcId, content);
+
+    maybeShowEmptyForList("inactive-tc-list", "inactive-empty", "비활성화된 테스트케이스가 없습니다.");
+    maybeShowEmptyForList("deleted-tc-list", "deleted-empty", "삭제된 테스트케이스가 없습니다.");
     return;
   }
 });

@@ -54,7 +54,11 @@
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ project.title }}</h5>
+                    <h5 class="card-title d-inline-block me-3">{{ project.title }}</h5>
+                    
+                    {% if project.expired_date < now %}
+                        <span class="badge text-bg-secondary">마감됨</span>
+                    {% endif %}
                     <p class="card-text">{{ project.content }}</p>
                     <p>
                         {% for tag in project.tags %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ project.title }}</h2>
+<h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
+<p>{{ project.content }}</p>
+
+<div class="mb-3">
+    <a href="/projects/{{ project._id }}/feedbacks" class="btn btn-primary">피드백 작성</a>
+</div>
+
+<div class="accordion" id="testcase-accordion">
+    {% for test_case in project.test_cases %}
+    {% set fail_feedbacks = test_case.feedbacks | selectattr('is_ok', 'false') | rejectattr('is_resolved', 'true') | list %}
+    {% set resolved_feedbacks = test_case.feedbacks | selectattr('is_ok', 'false') | selectattr('is_resolved', 'true') | list %}
+    {% set tc_total = test_case.feedbacks | length %}
+    {% set tc_success = tc_total - (fail_feedbacks | length) %}
+    {% if tc_total > 0 %}
+        {% set tc_percent = ((tc_success / tc_total * 100) | round | int) %}
+    {% else %}
+        {% set tc_percent = 0 %}
+    {% endif %}
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#tc-{{ loop.index }}">
+                <div class="d-flex align-items-center justify-content-between w-100 me-2">
+                    <p class="mb-0">{{ test_case.content }}</p>
+                    {% if tc_total > 0 %}
+                    <div class="text-end d-flex align-items-center justify-content-between" style="min-width: 200px;" >
+                        <div class="progress" style="min-width: 160px; height: 8px;" >
+                            <div class="progress-bar" style="width: {{ tc_percent }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ tc_success }}/{{ tc_total }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </button>
+        </h2>
+        <div id="tc-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#testcase-accordion">
+            <div class="accordion-body">
+                {% if fail_feedbacks %}
+                    <h4>실패</h4>
+                    {% for feedback in fail_feedbacks %}
+                        <div class="alert alert-danger">
+                            <span class="badge bg-danger">실패</span>
+                            <span class="ms-2">{{ feedback.error_reason }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% if resolved_feedbacks %}
+                    <h4>해결됨</h4>
+                    {% for feedback in resolved_feedbacks %}
+                        <div class="alert alert-secondary">
+                            <span class="badge bg-success">해결됨</span>
+                            <span class="ms-2">{{ feedback.error_reason }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% if not fail_feedbacks and not resolved_feedbacks %}
+                    <p class="text-muted">실패한 피드백이 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

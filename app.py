@@ -1,10 +1,15 @@
 from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
+from model.project import Project
+from model.tag import Tag
+from model.test_case import TestCase
+from service.project_service import project_create
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
+from datetime import datetime
 from common.dummy import get_user_context
 import jwt
-
 from common.error import ServiceError
 from model import project
+
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
@@ -180,13 +185,47 @@ def render_my_projects():
 
 @app.route("/projects/new", methods=["GET"])
 def render_project_form():
-    # 프로젝트 생성 폼 페이지
-    pass
+    return render_template("project_form.html")
 
 
-@app.route("/projects/new", methods=["POST"])
+@app.route("/projects", methods=["POST"])
 def create_project():
-    pass
+    import uuid
+    title = request.form["title"]
+    content = request.form["content"]
+    url = request.form["url"]
+
+    testcases_input = request.form.getlist("testcases[]")
+    test_cases = []
+    for tc in testcases_input:
+        if tc and tc.strip():
+            testcase = TestCase(id=str(uuid.uuid4()), content = tc.strip())
+            test_cases.append(testcase)
+
+    tags_input = request.form.get("tags", "")
+    tags = []
+    for t in tags_input.split("#"):
+        if t.strip():
+            tag = Tag(name=t.strip())
+            tags.append(tag)
+
+
+    new = Project(
+        _id = None,
+        title = title,
+        content = content,
+        url = url,
+        expired_date = datetime.now(),
+        is_expired = False,
+        test_cases = test_cases,
+        tags = tags
+    )
+    
+    project_create(new)
+
+    return redirect("/")
+
+
 
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])

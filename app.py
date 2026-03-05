@@ -2,8 +2,7 @@ from common.error import ServiceError
 import jwt
 from common.dummy import get_user_context
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
-from service.project_service import project_create, project_get, project_update, project_delete, testcase_deactivate,
-    testcase_hard_delete,
+from service.project_service import project_create, project_get, project_update, project_delete, testcase_deactivate, testcase_hard_delete
 from model.test_case import TestCase
 from model.tag import Tag
 from model.project import Project

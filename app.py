@@ -251,9 +251,9 @@ def create_project():
 
     )
 
-    project_create(new)
+    project = project_create(new)
 
-    return redirect("/")
+    return redirect(f"/projects/{project._id}")
 
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])

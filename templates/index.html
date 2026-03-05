@@ -39,10 +39,10 @@
             <a class="page-link">Previous</a>
         </li>
 
-        {% for i in range(pagination_info.block_start, pagination_info.block_end + 1) %}
-            {% if i <= pagination_info.last_page_num %}
-                <li class="page-item {% if i == pagination_info.page %}active{% endif %}">
-                    <a class="page-link" href="#" {% if i == pagination_info.page %}aria-current="page"{% endif %}>{{ i }}</a>
+        {% for cur_page in range(pagination_info.block_start, pagination_info.block_end + 1) %}
+            {% if cur_page <= pagination_info.last_page_num %}
+                <li class="page-item {% if cur_page == pagination_info.page %}active{% endif %}">
+                    <a class="page-link" href="{{ modify_query(page=cur_page) }}" {% if cur_page == pagination_info.page %}aria-current="page"{% endif %}>{{ cur_page }}</a>
                 </li>
             {% endif %}
         {% endfor %}

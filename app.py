@@ -10,6 +10,12 @@ app.secret_key = "secret_key"
 def health():
     return "ok"
 
+@app.template_global()
+def modify_query(**kwargs):
+    args = request.args.copy()
+    for key, value in kwargs.items():
+        args[key] = value
+    return request.path + '?' + '&'.join(f'{k}={v}' for k, v in args.items())
 
 # ------------------------
 # 인증

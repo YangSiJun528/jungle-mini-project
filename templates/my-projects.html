@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="search-bar" class="container mb-4 p-0">
+    <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 5fr;">
+        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+            {% set sort_mode = request.args.get("sort_mode") %}
+            <input type="radio" class="btn-check" name="btnradio" id="sort-latest" autocomplete="on" {% if
+                (sort_mode=='latest' ) or (sort_mode==None) %}checked{% endif %}>
+            <label class="btn btn-outline-primary p-0" for="sort-latest">
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle"
+                    href="{{ modify_query(sort_mode='latest') }}">최신순</a>
+            </label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="sort-deadline" autocomplete="on" {% if
+                sort_mode=='deadline' %}checked{% endif %}>
+            <label class="btn btn-outline-primary p-0" for="sort-deadline">
+                <a class="d-block text-decoration-none text-reset px-2 py-1 text-center align-middle"
+                    href="{{ modify_query(sort_mode='deadline') }}">마감 임박순</a>
+            </label>
+        </div>
+
+
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center position-relative w-100 me-3">
+                <input id="search-input" name="keyword" type="search" class="form-control" placeholder="Search..."
+                    aria-label="Search" {% set keyword=request.args.get("keyword") %} {% if keyword
+                    %}value="{{ keyword }}" {% endif %}>
+                <button class="btn bg-white border" id="button-addon2" type="button" onclick="search()">
+                    <svg class="bi bi-search" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-shrink-0 dropdown">
+                <a href="/projects/new" class="btn btn-primary">프로젝트 등록</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container px-0 py-2">
+    <h4>나의 프로젝트:</h4>
+</div>
+
+<div id="tag-display" class="container mb-3">
+    {% set tag = request.args.get("tag") %}
+    <span class="badge text-bg-light">{% if tag %}#{{ tag }}{% endif %}</span>
+</div>
+
+<div class="container p-0">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for project in projects %}
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text">{{ project.content }}</p>
+                    <p>
+                        {% for tag in project.tags %}
+                        <a class="badge text-bg-light" href="{{ modify_query(tag=tag.name) }}">#{{ tag.name }}</a>
+                        {% endfor %}
+                    </p>
+                    <a href="/projects/{{ project._id }}" class="card-link">상세정보</a>
+                    <a href="/projects/{{ project._id }}/edit" class="card-link">테스트 수정하기</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function search() {
+        const url = new URL(window.location.href);
+        const keyword = $("#search-input").val().trim();
+
+        url.searchParams.set("keyword", keyword);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}

@@ -2,13 +2,8 @@ from common.error import ServiceError
 import jwt
 from common.dummy import get_user_context
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
-from service.project_service import (
-    project_create,
-    project_get,
-    project_update,
-    testcase_deactivate,
+from service.project_service import project_create, project_get, project_update, project_delete, testcase_deactivate,
     testcase_hard_delete,
-)
 from model.test_case import TestCase
 from model.tag import Tag
 from model.project import Project
@@ -29,6 +24,12 @@ app.secret_key = "secret_key"
 def global_excaption_handler(err):
     print(err)
     flash("알수없는 에러가 발생했습니다.")
+    return redirect("/")
+
+
+@app.errorhandler(404)
+def http_not_found_excaption_handler(err):
+    flash("찾을 수 없는 페이지입니다.")
     return redirect("/")
 
 
@@ -89,8 +90,8 @@ def login():
         "access_token",
         jwt_token,
         httponly=True,
-        max_age=3600,
-    )
+        samesite="Lax",
+        max_age=3600)
     return resp
 
 
@@ -177,8 +178,22 @@ def render_project_detail(project_id):
 
 @app.route("/my-projects", methods=["GET"])
 def render_my_projects():
-    # TODO: 내 프로젝트 목록
-    return "TODO"
+    # 내 프로젝트 목록
+    current_user = get_user_context()
+
+    if not current_user:
+        flash("내 프로젝트를 보려면 로그인이 필요합니다.")
+        return redirect("/login")
+
+    current_user_id = current_user._id
+    keyword = request.args.get("keyword", default=None, type=str)
+    tag = request.args.get("tag", default=None, type=str)
+    sort_mode = request.args.get("sort_mode", default=None, type=str)
+    from service.project_service import project_get_my
+    projects = project_get_my(user_id=current_user_id,
+                              keyword=keyword, tag=tag, sort_mode=sort_mode)
+
+    return render_template("my-projects.html", projects=projects)
 
 
 # ------------------------
@@ -238,15 +253,17 @@ def create_project():
         title=title,
         content=content,
         url=url,
-        expired_date=expired_date,
+        expired_date=datetime.now(),
         created_at=datetime.now(),
         is_expired=False,
         test_cases=test_cases,
-        tags=tags,
+        tags=tags
+
     )
 
-    project_create(new)
-    return redirect("/")
+    project = project_create(new)
+
+    return redirect(f"/projects/{project._id}")
 
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])
@@ -348,8 +365,29 @@ def delete_testcase_in_project(project_id, testcase_id):
 
 @app.route("/projects/<project_id>/delete", methods=["POST"])
 def delete_project(project_id):
-    # TODO
-    return "TODO"
+    current_user = get_user_context()
+    if not current_user:
+        flash("로그인이 필요합니다.")
+        return redirect("/login")
+
+    user_id = current_user._id
+
+    project = project_get(project_id)
+    if isinstance(project, ServiceError):
+        flash("프로젝트에 접근할 수 없습니다.")
+        return redirect("/")
+
+    if project.user_id != user_id:
+        flash("본인이 작성한 프로젝트만 삭제할 수 있습니다.")
+        return redirect(f"/projects/{project_id}")
+
+    ok_or_err = project_delete(user_id, project_id)
+    if isinstance(ok_or_err, ServiceError):
+        flash("프로젝트 삭제 중 에러가 발생하였습니다.")
+        return redirect(f"/projects/{project_id}")
+
+    flash("프로젝트가 삭제되었습니다.")
+    return redirect("/my-projects")
 
 
 @app.route("/projects/<project_id>/close", methods=["POST"])

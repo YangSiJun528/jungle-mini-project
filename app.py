@@ -151,6 +151,7 @@ def logout():
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
     from service.project_service import project_list, pagination_info
+    from datetime import datetime
     page = request.args.get("page", default=1, type=int)
     keyword = request.args.get("keyword", default=None, type=str)
     tag = request.args.get("tag", default=None, type=str)
@@ -158,8 +159,9 @@ def render_project_list():
     projects = project_list(page=page, keyword=keyword,
                             tag=tag, sort_mode=sort_mode)
     pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
+    now = datetime.utcnow()
 
-    return render_template("index.html", projects=projects, pagination_info=pagination_info)
+    return render_template("index.html", projects=projects, pagination_info=pagination_info, now=now)
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
@@ -236,6 +238,8 @@ def create_project():
             tag = Tag(name=t.strip())
             tags.append(tag)
 
+    expired_date = datetime.strptime(request.form["expired_date"], "%Y-%m-%d")
+
     new = Project(
 
         _id = None,
@@ -243,7 +247,7 @@ def create_project():
         title = title,
         content = content,
         url = url,
-        expired_date = datetime.now(),
+        expired_date = expired_date,
         created_at = datetime.now(),
         is_expired = False,
         test_cases = test_cases,

@@ -70,33 +70,78 @@ def project_get(project_id: str) -> Project | ServiceError:
 def project_list(
         keyword: str | None, tag: str | None, sort_mode: str | None, page: int = 1,
 ) -> list[Project]:
-    from pymongo import DESCENDING, ASCENDING
-    size = 8
-    sort_options = {
-        "latest": [("created_at", DESCENDING)],
-        "deadline": [("expired_date", ASCENDING), ("created_at", DESCENDING)],
-    }
+    # from pymongo import DESCENDING, ASCENDING
+    # size = 8
+    # sort_options = {
+    #     "latest": [("created_at", DESCENDING)],
+    #     "deadline": [("expired_date", ASCENDING), ("created_at", DESCENDING)],
+    # }
 
+    # sort_params = "latest"
+    # if sort_mode is not None:
+    #     sort_params = sort_mode
+
+    # conditions = []
+    # if keyword:
+    #     conditions.append({
+    #         "$or": [
+    #             {"title": {"$regex": keyword, "$options": "i"}},
+    #             {"content": {"$regex": keyword, "$options": "i"}},
+    #         ]
+    #     })
+    # if tag:
+    #     conditions.append({"tags": {"$elemMatch": {"name": tag}}})
+    # query = {"$and": conditions} if conditions else {}
+
+    # assert sort_options[sort_params] is not None
+    # sort = sort_options[sort_params]
+
+    # project_results = db_projects.find(query).sort(sort).skip((page - 1) * size).limit(size)
+
+
+    # ver2.
+    from pymongo import DESCENDING, ASCENDING
+    now = datetime.utcnow()
+    size = 8
+    pipeline = [ 
+        {
+            "$addFields": {
+                "is_expired": {
+                    "$lt": ["$expired_date", now]
+                }
+            }
+        },
+        {
+            "$skip": (page - 1) * size
+        },
+        {
+            "$limit": size
+        },
+    ]
+    
+    sort_options = {
+        "latest": {"created_at": DESCENDING},
+        "deadline": {"expired_date": ASCENDING, "created_at": DESCENDING},
+    }
     sort_params = "latest"
     if sort_mode is not None:
         sort_params = sort_mode
+    pipeline.insert(1, {"$sort": {"is_expired": 1, **sort_options[sort_params]}})
 
-    conditions = []
+    match_conditions = []
     if keyword:
-        conditions.append({
+        match_conditions.append({
             "$or": [
                 {"title": {"$regex": keyword, "$options": "i"}},
                 {"content": {"$regex": keyword, "$options": "i"}},
             ]
         })
     if tag:
-        conditions.append({"tags": {"$elemMatch": {"name": tag}}})
-    query = {"$and": conditions} if conditions else {}
+        match_conditions.append({"tags": {"$elemMatch": {"name": tag}}})
+    if match_conditions:
+        pipeline.insert(0, {"$match": {"$and": match_conditions}})
 
-    assert sort_options[sort_params] is not None
-    sort = sort_options[sort_params]
-
-    project_results = db_projects.find(query).sort(sort).skip((page - 1) * size).limit(size)
+    project_results = db_projects.aggregate(pipeline)
 
     return project_results
 

@@ -25,10 +25,12 @@ def global_excaption_handler(err):
     flash("알수없는 에러가 발생했습니다.")
     return redirect("/")
 
+
 @app.errorhandler(404)
 def http_not_found_excaption_handler(err):
     flash("찾을 수 없는 페이지입니다.")
     return redirect("/")
+
 
 @app.errorhandler(jwt.ExpiredSignatureError)
 def jwt__exception_handler(err):
@@ -96,6 +98,7 @@ def login():
         'access_token',
         jwt_token,
         httponly=True,
+        samesite="Lax",
         max_age=3600)
 
     return resp
@@ -193,7 +196,8 @@ def render_my_projects():
     tag = request.args.get("tag", default=None, type=str)
     sort_mode = request.args.get("sort_mode", default=None, type=str)
     from service.project_service import project_get_my
-    projects = project_get_my(user_id=current_user_id, keyword=keyword, tag=tag, sort_mode=sort_mode)
+    projects = project_get_my(user_id=current_user_id,
+                              keyword=keyword, tag=tag, sort_mode=sort_mode)
 
     return render_template("my-projects.html", projects=projects)
 
@@ -238,16 +242,16 @@ def create_project():
 
     new = Project(
 
-        _id = None,
-        user_id = user_id,
-        title = title,
-        content = content,
-        url = url,
-        expired_date = datetime.now(),
-        created_at = datetime.now(),
-        is_expired = False,
-        test_cases = test_cases,
-        tags = tags
+        _id=None,
+        user_id=user_id,
+        title=title,
+        content=content,
+        url=url,
+        expired_date=datetime.now(),
+        created_at=datetime.now(),
+        is_expired=False,
+        test_cases=test_cases,
+        tags=tags
 
     )
 

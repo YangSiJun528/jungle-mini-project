@@ -111,7 +111,7 @@ def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict
             ]
         })
     if tag:
-        conditions.append({"tag": {"$eq": tag}})
+        conditions.append({"tags": {"$elemMatch": {"name": tag}}})
 
     tot_count = db_projects.count_documents({"$and": conditions} if conditions else {})
     last_page_num = math.ceil(tot_count / DISPLAY_LIMIT)

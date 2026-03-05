@@ -7,4 +7,5 @@ dependencies = [
     "bcrypt>=5.0.0",
     "flask",
     "pymongo",
+    "PyJWT",
 ]

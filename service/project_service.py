@@ -32,11 +32,11 @@ def project_get(project_id: str) -> Project | ServiceError:
 def project_list(
         keyword: str | None, tag: str | None, sort_mode: str | None, page: int = 1,
 ) -> list[Project]:
-    from pymongo import DESCENDING
+    from pymongo import DESCENDING, ASCENDING
     size = 8
     sort_options = {
-        "latest": [("TODO생성시점", DESCENDING)],
-        "popular": [("TODO인기도?", DESCENDING), ("TODO생성시점", DESCENDING)],
+        "latest": [("created_at", DESCENDING)],
+        "deadline": [("expired_date", ASCENDING), ("created_at", DESCENDING)],
     }
 
     sort_params = "latest"

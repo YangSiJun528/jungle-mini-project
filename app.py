@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
-
+from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
 from common.dummy import get_user_context
-from service.auth_service import auth_signup
+
 from common.error import ServiceError
 from model import project
 
@@ -26,13 +26,37 @@ def health():
 @app.route("/login", methods=["GET"])
 def render_login():
     return render_template("login.html")
-    
+
 @app.route("/login", methods=["POST"])
 def login():
-    # 폼: user_id, password
-    # 성공 -> 알잘딱
-    # 실패 ->
-    pass
+    # request 받기
+    login_id = request.form.get('login_id').strip()
+    password = request.form.get('password')
+
+    # 공백이 들어왔을때 에러메시지
+    if not login_id or not password:
+        flash("아이디/비밀번호를 입력하세요")
+        return redirect("/login")
+
+    # 로그인 인증 서비스 호출
+    result = auth_login(login_id, password)
+
+    if isinstance(result, ServiceError):
+        flash(result.message)
+        return redirect("/login")
+
+    # ID,PW 유효성 검증 완료 => 토큰 생성
+    jwt_token = create_access_token(result)
+
+    resp = redirect("/health")
+
+    resp.set_cookie(
+        'access_token',
+        jwt_token,
+        httponly=True,
+        max_age=3600)
+
+    return resp
 
 
 @app.route("/signup", methods=["GET"])
@@ -52,18 +76,18 @@ def signup():
     if len(password) < 8:
         flash("비밀번호는 8글자 이상이어야 합니다")
         return redirect("/signup")
-    
+
     elif password != confirm_password:
         flash("비밀번호가 일치하지 않습니다")
         return redirect("/signup")
 
     # 인증 시킨 User 객체 반환
     result = auth_signup(username, login_id, password)
-    
+
     if isinstance(result, ServiceError):
-        flash("회원가입에 실패했습니다")
+        flash(result.message)
         return redirect("/signup")
-    
+
     # 회원가입 성공
     return redirect("/login")
 

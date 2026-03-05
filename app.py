@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for
+from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
 from common.dummy import get_user_context
 
@@ -11,6 +11,7 @@ app.secret_key = "secret_key"
 # 전역 컨텍스트
 @app.context_processor
 def inject_user_context():
+    # print(f"유저 정보: {get_user_context(return_none=False)}")
     return {"user_context": get_user_context(True)}
 
 # 도커 컴포즈 배포 시 확인용
@@ -48,7 +49,7 @@ def login():
     # ID,PW 유효성 검증 완료 => 토큰 생성
     jwt_token = create_access_token(result)
 
-    resp = redirect("/health")
+    resp = redirect("/login")
 
     resp.set_cookie(
         'access_token',
@@ -95,7 +96,9 @@ def signup():
 @app.route("/logout", methods=["POST"])
 def logout():
     # 로그아웃 요청
-    pass
+    resp = make_response(redirect(url_for('login')))
+    resp.delete_cookie('access_token')
+    return resp
 
 
 # ------------------------

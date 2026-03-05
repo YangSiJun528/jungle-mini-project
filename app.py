@@ -73,8 +73,13 @@ def logout():
 @app.route("/", methods=["GET"])
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
-    # 쿼리 파라미터 처리 필요
-    pass
+    from service.project_service import project_list, pagination_info
+    projects = project_list(page=1, keyword=None, tag=None, sort_mode="최신")
+    page = request.args.get("page", default=1, type=int)
+    pagination_info = pagination_info(page)
+
+    # TODO: 쿼리 파라미터 처리 필요
+    return render_template("index.html", projects=projects, pagination_info=pagination_info)
 
 
 @app.route("/projects/<project_id>", methods=["GET"])

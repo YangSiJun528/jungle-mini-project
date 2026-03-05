@@ -85,7 +85,7 @@ def login():
         'access_token',
         jwt_token,
         httponly=True,
-        max_age=62)
+        max_age=3600)
 
     return resp
 

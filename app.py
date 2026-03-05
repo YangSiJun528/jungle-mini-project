@@ -224,6 +224,7 @@ def create_project():
         content = content,
         url = url,
         expired_date = datetime.now(),
+        created_at = datetime.now(),
         is_expired = False,
         test_cases = test_cases,
         tags = tags

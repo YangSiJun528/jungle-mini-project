@@ -1,24 +1,24 @@
-# name: CI-CD
-# on:
-#   push:
-#     branches: [main]
+ name: CI-CD
+ on:
+   push:
+     branches: [main]
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-24.04
-#     steps:
-#       - name: Deploy
-#         uses: appleboy/ssh-action@v1.2.5
-#         with:
-#           host: ${{ secrets.HOST }}
-#           username: ${{ secrets.USERNAME }}
-#           key: ${{ secrets.KEY }}
-#           port: ${{ secrets.PORT }}
-#           script: |
-#             set -e
-#             cd ~/jungle-mini-project
-#             git pull origin main
-#             docker compose down
-#             docker compose pull
-#             docker compose up -d --remove-orphans --wait
-#             docker image prune -f
+ jobs:
+   deploy:
+     runs-on: ubuntu-24.04
+     steps:
+       - name: Deploy
+         uses: appleboy/ssh-action@v1.2.5
+         with:
+           host: ${{ secrets.HOST }}
+           username: ${{ secrets.USERNAME }}
+           key: ${{ secrets.KEY }}
+           port: ${{ secrets.PORT }}
+           script: |
+             set -e
+             cd ~/jungle-mini-project
+             git pull origin main
+             docker compose down
+             docker compose pull
+             docker compose up -d --remove-orphans --wait
+             docker image prune -f

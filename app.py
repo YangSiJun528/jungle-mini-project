@@ -1,17 +1,35 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
 from model.project import Project
 from model.tag import Tag
 from model.test_case import TestCase
 from service.project_service import project_create
+from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
 from datetime import datetime
+from common.dummy import get_user_context
+from common.error import ServiceError
+from model import project
+
 
 app = Flask(__name__)
+app.secret_key = "secret_key"
+
+# 전역 컨텍스트
+@app.context_processor
+def inject_user_context():
+    # print(f"유저 정보: {get_user_context(return_none=False)}")
+    return {"user_context": get_user_context(True)}
 
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")
 def health():
     return "ok"
 
+@app.template_global()
+def modify_query(**kwargs):
+    args = request.args.copy()
+    for key, value in kwargs.items():
+        args[key] = value
+    return request.path + '?' + '&'.join(f'{k}={v}' for k, v in args.items())
 
 # ------------------------
 # 인증
@@ -19,34 +37,79 @@ def health():
 
 @app.route("/login", methods=["GET"])
 def render_login():
-    # 로그인 페이지
-    pass
-
+    return render_template("login.html")
 
 @app.route("/login", methods=["POST"])
 def login():
-    # 폼: user_id, password
-    # 성공 -> 알잘딱
-    # 실패 ->
-    pass
+    # request 받기
+    login_id = request.form.get('login_id').strip()
+    password = request.form.get('password')
+
+    # 공백이 들어왔을때 에러메시지
+    if not login_id or not password:
+        flash("아이디/비밀번호를 입력하세요")
+        return redirect("/login")
+
+    # 로그인 인증 서비스 호출
+    result = auth_login(login_id, password)
+
+    if isinstance(result, ServiceError):
+        flash(result.message)
+        return redirect("/login")
+
+    # ID,PW 유효성 검증 완료 => 토큰 생성
+    jwt_token = create_access_token(result)
+
+    resp = redirect("/login")
+
+    resp.set_cookie(
+        'access_token',
+        jwt_token,
+        httponly=True,
+        max_age=3600)
+
+    return resp
 
 
 @app.route("/signup", methods=["GET"])
 def render_signup():
+    return render_template("signup.html")
     # 회원가입 페이지
-    pass
-
 
 @app.route("/signup", methods=["POST"])
 def signup():
     # 회원가입 요청
-    pass
+    login_id = request.form.get('login_id')
+    username = request.form.get('username')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    # 비밀번호 유효성 판단
+    if len(password) < 8:
+        flash("비밀번호는 8글자 이상이어야 합니다")
+        return redirect("/signup")
+
+    elif password != confirm_password:
+        flash("비밀번호가 일치하지 않습니다")
+        return redirect("/signup")
+
+    # 인증 시킨 User 객체 반환
+    result = auth_signup(username, login_id, password)
+
+    if isinstance(result, ServiceError):
+        flash(result.message)
+        return redirect("/signup")
+
+    # 회원가입 성공
+    return redirect("/login")
 
 
 @app.route("/logout", methods=["POST"])
 def logout():
     # 로그아웃 요청
-    pass
+    resp = make_response(redirect(url_for('login')))
+    resp.delete_cookie('access_token')
+    return resp
 
 
 # ------------------------
@@ -56,14 +119,31 @@ def logout():
 @app.route("/", methods=["GET"])
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
-    # 쿼리 파라미터 처리 필요
-    return "home page"
+    from service.project_service import project_list, pagination_info
+    page = request.args.get("page", default=1, type=int)
+    keyword = request.args.get("keyword", default=None, type=str)
+    tag = request.args.get("tag", default=None, type=str)
+    sort_mode = request.args.get("sort_mode", default=None, type=str)
+    projects = project_list(page=page, keyword=keyword, tag=tag, sort_mode=sort_mode)
+    pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
+
+    return render_template("index.html", projects=projects, pagination_info=pagination_info)
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
 def render_project_detail(project_id):
-    # 프로젝트 상세 페이지 - 테스트케이스 + 피드백 포함
-    pass
+    from service.project_service import project_get
+
+    project = project_get(project_id)
+
+    for test_case in project.test_cases:
+        test_case.feedbacks = sorted(test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
+
+    if isinstance(project, ServiceError):
+        flash("프로젝트를 찾을 수 없습니다. 프로젝트가 삭제되었거나 잘못된 프로젝트입니다.")
+        return redirect("/")
+
+    return render_template("project_detail.html", project=project)
 
 
 @app.route("/my-projects", methods=["GET"])
@@ -173,9 +253,43 @@ def delete_testcase(testcase_id):
 # 피드백
 # ------------------------
 
+@app.route("/projects/<project_id>/feedbacks", methods=["GET"])
+def render_feedbacks(project_id):
+    # 컨플릭 방지용으로 함수 안에서 정의
+    from model.project import Project
+    from service.project_service import project_get
+
+    # 실제
+    project = project_get(project_id)
+
+    assert isinstance(project, Project) #TODO(sijun-yang): project 조회 예외 처리
+
+    return render_template("feedback-form.html", project=project)
+
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
 def submit_feedbacks(project_id):
-    pass
+    from common.error import ServiceError
+    from service.feedback_service import feedback_submit
+
+    form = request.form
+    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+
+    feedbacks = []
+    for tc_id in test_case_ids:
+        is_ok = form.get(f"result_{tc_id}") == "success"
+        feedbacks.append({
+            "test_case_id": tc_id,
+            "is_ok": is_ok,
+            "error_reason": None if is_ok else form.get(f"feedback_{tc_id}"),
+        })
+
+    result = feedback_submit(project_id, feedbacks)
+
+    if isinstance(result, ServiceError):
+        # TODO(sijun-yang): 서버 에러 UI 처리
+        pass
+
+    return redirect(url_for("render_project_detail", project_id=project_id))
 
 
 @app.route("/feedbacks/<feedback_id>/resolve", methods=["POST"])

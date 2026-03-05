@@ -18,13 +18,14 @@ def get_user_context() -> User | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
 
-        user_id = payload.get('login_id')
+        user_id = payload.get('user_id')
+        login_id = payload.get('login_id')
         username = payload.get('username')
 
         return User(
-            _id="",
+            _id=user_id,
             username=username,
-            login_id=user_id,
+            login_id=login_id,
             password_hash="",
         )
 

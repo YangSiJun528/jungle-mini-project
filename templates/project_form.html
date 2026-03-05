@@ -7,55 +7,131 @@
       <div class="card shadow-sm">
         <div class="card-body p-4">
 
-          <h5 class="mb-4">프로젝트 등록</h5>
+          <h5 class="mb-4">
+            {{ "프로젝트 수정" if project else "프로젝트 등록" }}
+          </h5>
 
-          <form action="/projects" method="POST">
+          <form
+            action="{{ '/projects/' ~ project._id ~ '/edit' if project else '/projects' }}"
+            method="POST"
+          >
 
             <!-- 제목 -->
             <div class="mb-3">
               <label for="title" class="form-label">제목</label>
-              <input id="title" name="title" class="form-control" placeholder="제목을 입력해주세요">
+              <input
+                id="title"
+                name="title"
+                class="form-control"
+                placeholder="제목을 입력해주세요"
+                value="{{ project.title if project else '' }}"
+                required
+              >
             </div>
 
             <!-- 설명 -->
             <div class="mb-3">
               <label for="content" class="form-label">설명</label>
-              <textarea id="content" name="content" class="form-control" rows="4" placeholder="설명"></textarea>
+              <textarea
+                id="content"
+                name="content"
+                class="form-control"
+                rows="4"
+                placeholder="설명"
+                required
+              >{{ project.content if project else '' }}</textarea>
             </div>
 
             <!-- URL -->
             <div class="mb-3">
               <label for="url" class="form-label">서비스 URL</label>
-              <input id="url" name="url" class="form-control" placeholder="귀하의 서비스의 url을 입력">
+              <input
+                id="url"
+                name="url"
+                class="form-control"
+                placeholder="귀하의 서비스의 url을 입력"
+                value="{{ project.url if project else '' }}"
+                required
+              >
             </div>
 
-            <!-- URL -->
+            <!-- 만료일 -->
             <div class="mb-3">
               <label for="expired_date">만료기일</label>
-              <input type="date" id="expired_date" name="expired_date" required>
+              <input
+                type="date"
+                id="expired_date"
+                name="expired_date"
+                class="form-control"
+                value="{{ project.expired_date.strftime('%Y-%m-%d') if project else '' }}"
+                required
+              >
             </div>
 
             <!-- 태그 -->
             <div class="mb-3">
               <label for="tags" class="form-label">태그</label>
-              <input id="tags" name="tags" class="form-control" placeholder="#태그1 #태그2">
+
+              {# 수정 화면이면 project.tags를 "#태그" 형태로 보여주기 #}
+              <input
+                id="tags"
+                name="tags"
+                class="form-control"
+                placeholder="#태그1 #태그2"
+                value="{% if project %}{% for t in project.tags %}#{{ t.name }} {% endfor %}{% else %}{% endif %}"
+                {% if project %}readonly{% endif %}
+              >
               <div class="form-text">예: #python #flask 처럼 입력</div>
+
+              {% if project %}
+                <div class="form-text text-muted">
+                  수정 화면에서는 태그를 변경할 수 없습니다.
+                </div>
+              {% endif %}
             </div>
-            
 
             <!-- 테스트케이스 -->
             <div class="mb-2 d-flex align-items-center justify-content-between">
               <label class="form-label mb-0">테스트케이스</label>
-              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestcase()">추가</button>
+
+              {% if project %}
+                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                  추가
+                </button>
+              {% else %}
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestcase()">
+                  추가
+                </button>
+              {% endif %}
             </div>
 
             <div id="testcase-container" class="mb-3">
-              <div class="mb-2">
-                <input name="testcases[]" class="form-control" placeholder="테스트케이스1">
-              </div>
+              {% if project %}
+                {# 수정 화면: 기존 테스트케이스 보여주되 readonly #}
+                {% for tc in project.test_cases %}
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      value="{{ tc.content }}"
+                      readonly
+                    >
+                  </div>
+                {% endfor %}
+
+                <div class="form-text text-muted">
+                  수정 화면에서는 테스트케이스를 변경할 수 없습니다.
+                </div>
+              {% else %}
+                {# 등록 화면: 입력 + 추가 가능 #}
+                <div class="mb-2">
+                  <input name="testcases[]" class="form-control" placeholder="테스트케이스1" required>
+                </div>
+              {% endif %}
             </div>
 
-            <button class="btn btn-primary w-100" type="submit">등록</button>
+            <button class="btn btn-primary w-100" type="submit">
+              {{ "수정 저장" if project else "등록" }}
+            </button>
 
           </form>
 
@@ -65,6 +141,7 @@
   </div>
 </div>
 
+{% if not project %}
 <script>
 let testcaseCount = 1;
 
@@ -73,18 +150,19 @@ function addTestcase() {
 
   const container = document.getElementById("testcase-container");
 
-  // Bootstrap 간격을 주기 위해 div로 한번 감싸는 게 깔끔함
   const wrapper = document.createElement("div");
   wrapper.className = "mb-2";
 
   const input = document.createElement("input");
   input.name = "testcases[]";
   input.placeholder = "테스트케이스" + testcaseCount;
-  input.className = "form-control"; // ★ 이게 핵심
+  input.className = "form-control";
+  input.required = true;
 
   wrapper.appendChild(input);
   container.appendChild(wrapper);
 }
 </script>
+{% endif %}
 
 {% endblock %}

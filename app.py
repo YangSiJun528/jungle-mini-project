@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, flash, get
 from model.project import Project
 from model.tag import Tag
 from model.test_case import TestCase
-from service.project_service import project_create
+from service.project_service import project_create, project_get, project_update
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
 from datetime import datetime
 from common.dummy import get_user_context
@@ -242,14 +242,58 @@ def create_project():
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])
 def render_project_edit(project_id):
-    # 프로젝트 수정 폼 (소유자만 가능)
-    pass
+    
+    current_user = get_user_context()
+    user_id = current_user._id
+
+    if not current_user:
+        flash("로그인이 필요합니다")
+        return redirect("/login")
+
+    project_or_err = project_get(project_id)
+    if isinstance(project_or_err, ServiceError):
+        flash("프로젝트를 가져오는데 실패했습니다")
+        return redirect("/")
+
+    project = project_or_err
+
+    if project.user_id != user_id:
+        flash("프로젝트를 수정하기 위해선 본인이 작성한 프로젝트여야합니다")
+        return redirect("/")
+
+    return render_template("project_form.html", project=project)
+
 
 
 @app.route("/projects/<project_id>/edit", methods=["POST"])
 def update_project(project_id):
-    # 소유자 확인 필요
-    pass
+    current_user = get_user_context()
+    user_id = current_user._id
+
+    if not current_user:
+        flash("로그인이 필요합니다")
+        return redirect("/login")
+
+    title = request.form.get("title")
+    content = request.form.get("content")
+    url = request.form.get("url")
+    expired_date_str = request.form.get("expired_date")
+
+    expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
+
+    data = {
+        "title": title,
+        "content": content,
+        "url": url,
+        "expired_date": expired_date,
+    }
+
+    ok_or_err = project_update(user_id, project_id, data)
+    if isinstance(ok_or_err, ServiceError):
+        flash("수정 반영 중 오류 발생")
+        return redirect("/")
+
+    return redirect(f"/projects/{project_id}")
 
 
 @app.route("/projects/<project_id>/delete", methods=["POST"])

@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect
-from pymongo import MongoClient
+from model.project import Project
+from model.tag import Tag
+from model.test_case import TestCase
+from service.project_service import project_create
+from datetime import datetime
 
 app = Flask(__name__)
-
-client = MongoClient("mongodb://mongo:27017/")
-db = client["jungle"]
-projects = db["projects"]
 
 # 도커 컴포즈 배포 시 확인용
 @app.route("/health")
@@ -85,28 +85,35 @@ def create_project():
     title = request.form["title"]
     content = request.form["content"]
     url = request.form["url"]
-    testcases = request.form.getlist["testcases[]"]
 
-    tags_input = request.form["tags"]
-
-    tags = [
-        tag.strip()
-        for tag in tags_input.split("#")
-        if tag.strip()
+    testcases_input = request.form.getlist("testcases[]")
+    test_cases = [
+        Testcase(description=tc.strip())
+        for tc in testcases_input
+        if tc and tc.strip()
     ]
 
+    tags_input = request.form.get("tags", "")
+    tags = [
+        Tag(name=t.strip())
+        for t in tags_input.split("#")
+        if t.strip()
+    ]
 
-    project = {
-        "title": title,
-        "content": content,
-        "url": url,
-        "testcases": testcases,
-        "tags": tags
-    }
+    new = Project(
+        _id = None,
+        titele = title,
+        content = content,
+        url = url,
+        expired_date = datetime.now(),
+        is_expired = False,
+        test_cases = test_cases,
+        tags = tags
+    )
+    
+    project_create(new)
 
-    projects.insert_one(project)
-
-    return redirect("/health")
+    return redirect("/")
 
 
 

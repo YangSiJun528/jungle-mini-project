@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-
 def auth_signup(
     username: str, user_id: str, password: str
 ) -> User | ServiceError:
@@ -57,10 +56,9 @@ def auth_login(user_id: str, password: str) -> User | ServiceError:
                 login_id=id_exists["login_id"],
                 _id=str(id_exists["_id"]))
 
-SECRET_KEY = "jungle mini project2131236532dsafxd24weqsadasd"
+SECRET_KEY = "jungle_mini_project2131236532dsafxd24weqsadasd"
 
 def create_access_token(user: User) -> str:
-    
     # 1) payload 만들기 (user_id, login_id, exp)
     payload = {
         "user_id": user._id,

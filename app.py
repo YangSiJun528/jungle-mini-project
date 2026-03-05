@@ -111,8 +111,18 @@ def render_project_list():
 
 @app.route("/projects/<project_id>", methods=["GET"])
 def render_project_detail(project_id):
-    # 프로젝트 상세 페이지 - 테스트케이스 + 피드백 포함
-    pass
+    from service.project_service import project_get
+
+    project = project_get(project_id)
+
+    for test_case in project.test_cases:
+        test_case.feedbacks = sorted(test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
+
+    if isinstance(project, ServiceError):
+        flash("프로젝트를 찾을 수 없습니다. 프로젝트가 삭제되었거나 잘못된 프로젝트입니다.")
+        return redirect("/")
+
+    return render_template("project_detail.html", project=project)
 
 
 @app.route("/my-projects", methods=["GET"])

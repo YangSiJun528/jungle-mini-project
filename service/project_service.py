@@ -2,6 +2,9 @@ from dataclasses import asdict
 from common.db import db_projects
 from common.error import ServiceError, PROJECT_NOT_FOUND
 from model.project import Project
+from model.test_case import TestCase
+from model.feedback import Feedback
+from model.tag import Tag
 from bson.objectid import ObjectId
 from datetime import datetime
 
@@ -21,7 +24,36 @@ def project_get(project_id: str) -> Project | ServiceError:
     if not doc:
         return PROJECT_NOT_FOUND
     doc["_id"] = str(doc["_id"])
-    return Project(**doc) # 참고: https://stackoverflow.com/questions/3394835/use-of-args-and-kwargs
+
+    test_cases = []
+    raw_test_cases = doc.get("test_cases", [])
+
+    for tc in raw_test_cases:
+        feedbacks = []
+        raw_feedbacks = tc.get("feedbacks", [])
+
+        for fb in raw_feedbacks:
+            feedback = Feedback(**fb)
+            feedbacks.append(feedback)
+
+        tc_dict = dict(tc)
+        tc_dict["feedbacks"] = feedbacks # feedbacks이 dict 상태인데, 이걸 변경한 Feedback 객체로 변경
+
+        test_case = TestCase(**tc_dict)
+        test_cases.append(test_case)
+
+    doc["test_cases"] = test_cases
+
+    tags = []
+    raw_tags = doc.get("tags", [])
+
+    for t in raw_tags:
+        tag = Tag(**t)
+        tags.append(tag)
+
+    doc["tags"] = tags
+
+    return Project(**doc)  # 참고: https://stackoverflow.com/questions/3394835/use-of-args-and-kwargs
 
 
 def project_list(keyword: str | None, tag: str | None) -> list[Project]:

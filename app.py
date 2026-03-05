@@ -3,9 +3,8 @@ from model import project
 from common.error import ServiceError
 import jwt
 from common.dummy import get_user_context
-from datetime import datetime
-from service.auth_service import auth_signup, auth_login, create_access_token
-from service.project_service import project_create
+from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
+from service.project_service import project_create, project_get, project_update
 from model.test_case import TestCase
 from model.tag import Tag
 from model.project import Project
@@ -245,13 +244,62 @@ def create_project():
 
 @app.route("/projects/<project_id>/edit", methods=["GET"])
 def render_project_edit(project_id):
-    pass
+    current_user = get_user_context()
+    user_id = current_user._id
+
+    if not current_user:
+        flash("로그인이 필요합니다")
+        return redirect("/login")
+
+    project_or_err = project_get(project_id)
+    if isinstance(project_or_err, ServiceError):
+        flash("프로젝트를 가져오는데 실패했습니다")
+        return redirect("/")
+
+    project = project_or_err
+
+    if project.user_id != user_id:
+        flash("프로젝트를 수정하기 위해선 본인이 작성한 프로젝트여야합니다")
+        return redirect("/")
+
+    return render_template("project_form.html", project=project)
 
 
 @app.route("/projects/<project_id>/edit", methods=["POST"])
 def update_project(project_id):
-    # 소유자 확인 필요
-    pass
+    current_user = get_user_context()
+    user_id = current_user._id
+
+    if not current_user:
+        flash("로그인이 필요합니다")
+        return redirect("/login")
+
+    title = request.form.get("title")
+    content = request.form.get("content")
+    url = request.form.get("url")
+    expired_date_str = request.form.get("expired_date")
+    tags_input = request.form.get("tags", "")
+    tags = []
+    for t in tags_input.split("#"):
+        if t.strip():
+            tags.append({"name": t.strip()})
+
+    expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
+
+    data = {
+        "title": title,
+        "content": content,
+        "url": url,
+        "expired_date": expired_date,
+        "tags": tags,
+    }
+
+    ok_or_err = project_update(user_id, project_id, data)
+    if isinstance(ok_or_err, ServiceError):
+        flash("수정 반영 중 오류 발생")
+        return redirect("/")
+
+    return redirect(f"/projects/{project_id}")
 
 
 @app.route("/projects/<project_id>/delete", methods=["POST"])

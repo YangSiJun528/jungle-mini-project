@@ -4,7 +4,7 @@ from common.error import ServiceError
 import jwt
 from common.dummy import get_user_context
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
-from service.project_service import project_create, project_get, project_update
+from service.project_service import project_create, project_get, project_update, project_delete
 from model.test_case import TestCase
 from model.tag import Tag
 from model.project import Project
@@ -318,7 +318,29 @@ def update_project(project_id):
 
 @app.route("/projects/<project_id>/delete", methods=["POST"])
 def delete_project(project_id):
-    pass
+    current_user = get_user_context()
+    if not current_user:
+        flash("로그인이 필요합니다.")
+        return redirect("/login")
+
+    user_id = current_user._id
+
+    project = project_get(project_id)
+    if isinstance(project, ServiceError):
+        flash("프로젝트에 접근할 수 없습니다.")
+        return redirect("/")
+
+    if project.user_id != user_id:
+        flash("본인이 작성한 프로젝트만 삭제할 수 있습니다.")
+        return redirect(f"/projects/{project_id}")
+
+    ok_or_err = project_delete(user_id, project_id)
+    if isinstance(ok_or_err, ServiceError):
+        flash("프로젝트 삭제 중 에러가 발생하였습니다.")
+        return redirect(f"/projects/{project_id}")
+
+    flash("프로젝트가 삭제되었습니다.")
+    return redirect("/my-projects")
 
 
 @app.route("/projects/<project_id>/close", methods=["POST"])

@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from common.db import db_projects
-from common.error import ServiceError, PROJECT_NOT_FOUND
+from common.error import ServiceError, PROJECT_NOT_FOUND, PROJECT_DELETE_FAILED
 from model.project import Project
 from model.test_case import TestCase
 from model.feedback import Feedback
@@ -161,7 +161,10 @@ def project_get_my(user_id: str, keyword: str | None, tag: str | None, sort_mode
 
 
 def project_delete(user_id: str, project_id: str) -> bool | ServiceError:
-    pass
+    result = db_projects.delete_one({"_id": ObjectId(project_id), "user_id": user_id})
+    if result.deleted_count == 0:
+        return PROJECT_DELETE_FAILED
+    return True
 
 
 def project_close(user_id: str, project_id: str) -> bool | ServiceError:

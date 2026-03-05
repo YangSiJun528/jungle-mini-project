@@ -68,10 +68,9 @@
               >
             </div>
 
-            <!-- 태그 (수정 가능하도록 변경) -->
+            <!-- 태그 -->
             <div class="mb-3">
               <label for="tags" class="form-label">태그</label>
-
               <input
                 id="tags"
                 name="tags"
@@ -87,31 +86,102 @@
               <label class="form-label mb-0">테스트케이스</label>
 
               {% if project %}
-                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
-                  추가
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>추가</button>
               {% else %}
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestcase()">
-                  추가
-                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestcase()">추가</button>
               {% endif %}
             </div>
 
             <div id="testcase-container" class="mb-3">
               {% if project %}
-                {% for tc in project.test_cases %}
-                  <div class="mb-2">
-                    <input
-                      class="form-control"
-                      value="{{ tc.content }}"
-                      readonly
-                    >
+
+                {# 그룹 분리: is_deleted / is_active 기준 #}
+                {% set active_tcs = project.test_cases
+                    | selectattr('is_deleted', 'equalto', False)
+                    | selectattr('is_active', 'equalto', True)
+                    | list %}
+                {% set inactive_tcs = project.test_cases
+                    | selectattr('is_deleted', 'equalto', False)
+                    | selectattr('is_active', 'equalto', False)
+                    | list %}
+                {% set deleted_tcs = project.test_cases
+                    | selectattr('is_deleted', 'equalto', True)
+                    | list %}
+
+                <!-- 활성 -->
+                <div class="mb-3" id="active-tc-section">
+                  <div class="mb-2 fw-semibold">활성 테스트케이스</div>
+
+                  {% if active_tcs %}
+                    {% for tc in active_tcs %}
+                      <div
+                        class="d-flex gap-2 mb-2 testcase-row"
+                        data-project-id="{{ project._id }}"
+                        data-tc-id="{{ tc.id }}"
+                        data-content="{{ tc.content|e }}"
+                      >
+                        <input class="form-control" value="{{ tc.content }}" readonly>
+
+                        <button
+                          type="button"
+                          class="btn btn-outline-warning btn-sm btn-deactivate"
+                        >
+                          비활성화
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger btn-sm btn-delete"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="text-muted" id="active-empty">활성 테스트케이스가 없습니다.</div>
+                  {% endif %}
+                </div>
+
+                <!-- 비활성 -->
+                <div class="mb-3" id="inactive-tc-section">
+                  <div class="mb-2 fw-semibold">비활성화된 테스트케이스</div>
+
+                  <div id="inactive-tc-list">
+                    {% if inactive_tcs %}
+                      {% for tc in inactive_tcs %}
+                        <div class="d-flex gap-2 mb-2">
+                          <input class="form-control" value="{{ tc.content }}" readonly>
+                          <span class="badge text-bg-secondary align-self-center">비활성</span>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="text-muted" id="inactive-empty">비활성화된 테스트케이스가 없습니다.</div>
+                    {% endif %}
                   </div>
-                {% endfor %}
+                </div>
+
+                <!-- 삭제 -->
+                <div class="mb-3" id="deleted-tc-section">
+                  <div class="mb-2 fw-semibold">삭제된 테스트케이스</div>
+
+                  <div id="deleted-tc-list">
+                    {% if deleted_tcs %}
+                      {% for tc in deleted_tcs %}
+                        <div class="d-flex gap-2 mb-2">
+                          <input class="form-control" value="{{ tc.content }}" readonly>
+                          <span class="badge text-bg-danger align-self-center">삭제</span>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="text-muted" id="deleted-empty">삭제된 테스트케이스가 없습니다.</div>
+                    {% endif %}
+                  </div>
+                </div>
 
                 <div class="form-text text-muted">
-                  수정 화면에서는 테스트케이스를 변경할 수 없습니다.
+                  수정 화면에서는 테스트케이스 내용 수정은 불가하고, 비활성화/삭제만 가능합니다.
                 </div>
+
               {% else %}
                 <div class="mb-2">
                   <input name="testcases[]" class="form-control" placeholder="테스트케이스1" required>
@@ -152,6 +222,148 @@ function addTestcase() {
   wrapper.appendChild(input);
   container.appendChild(wrapper);
 }
+</script>
+{% endif %}
+
+{% if project %}
+<script>
+
+function ensureEmptyHidden(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function maybeShowEmptyIfNoRows() {
+  const activeSection = document.getElementById("active-tc-section");
+  const rows = activeSection.querySelectorAll(".testcase-row");
+  if (rows.length === 0) {
+    if (!document.getElementById("active-empty")) {
+      const div = document.createElement("div");
+      div.className = "text-muted";
+      div.id = "active-empty";
+      div.textContent = "활성 테스트케이스가 없습니다.";
+      activeSection.appendChild(div);
+    }
+  }
+}
+
+function appendInactive(content) {
+  const list = document.getElementById("inactive-tc-list");
+  ensureEmptyHidden("inactive-empty");
+
+  const row = document.createElement("div");
+  row.className = "d-flex gap-2 mb-2";
+
+  const input = document.createElement("input");
+  input.className = "form-control";
+  input.value = content;
+  input.readOnly = true;
+
+  const badge = document.createElement("span");
+  badge.className = "badge text-bg-secondary align-self-center";
+  badge.textContent = "비활성";
+
+  row.appendChild(input);
+  row.appendChild(badge);
+  list.appendChild(row);
+}
+
+function appendDeleted(content) {
+  const list = document.getElementById("deleted-tc-list");
+  ensureEmptyHidden("deleted-empty");
+
+  const row = document.createElement("div");
+  row.className = "d-flex gap-2 mb-2";
+
+  const input = document.createElement("input");
+  input.className = "form-control";
+  input.value = content;
+  input.readOnly = true;
+
+  const badge = document.createElement("span");
+  badge.className = "badge text-bg-danger align-self-center";
+  badge.textContent = "삭제";
+
+  row.appendChild(input);
+  row.appendChild(badge);
+  list.appendChild(row);
+}
+
+async function postAction(url, btn) {
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = "처리중...";
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json"
+      
+        // "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
+      },
+      credentials: "same-origin"
+    });
+
+    // 204면 body 없음. 200 JSON이면 {ok:true} 같은거 기대.
+    if (!res.ok) {
+      let msg = "요청 실패";
+      try {
+        const data = await res.json();
+        if (data && data.message) msg = data.message;
+      } catch (_) {}
+      throw new Error(msg);
+    }
+
+    // ok
+    return true;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+// 이벤트 위임(버튼이 많아도 안정적)
+document.addEventListener("click", async (e) => {
+  const deactivateBtn = e.target.closest(".btn-deactivate");
+  const deleteBtn = e.target.closest(".btn-delete");
+  if (!deactivateBtn && !deleteBtn) return;
+
+  const row = e.target.closest(".testcase-row");
+  if (!row) return;
+
+  const projectId = row.dataset.projectId;
+  const tcId = row.dataset.tcId;
+  const content = row.dataset.content || "";
+
+  if (deactivateBtn) {
+    const ok = await postAction(`/projects/${projectId}/testcases/${tcId}/deactivate`, deactivateBtn)
+      .catch(err => { alert(err.message); return false; });
+
+    if (!ok) return;
+
+    // DOM 갱신: 활성 row 제거 + 비활성 섹션에 추가
+    row.remove();
+    appendInactive(content);
+    maybeShowEmptyIfNoRows();
+    return;
+  }
+
+  if (deleteBtn) {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    const ok = await postAction(`/projects/${projectId}/testcases/${tcId}/delete`, deleteBtn)
+      .catch(err => { alert(err.message); return false; });
+
+    if (!ok) return;
+
+    // DOM 갱신: 활성 row 제거 + 삭제 섹션에 추가
+    row.remove();
+    appendDeleted(content);
+    maybeShowEmptyIfNoRows();
+    return;
+  }
+});
 </script>
 {% endif %}
 

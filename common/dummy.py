@@ -1,11 +1,12 @@
 from model.user import User
 import jwt
-from flask import request
+from flask import request, flash
 
 # 현재 인증 된 사용자 정보를 불려오는 역할인데, 개발 도중에는 더미로 사용. 인증 파트 팀원이 구현하기
 # 로그인이 안된 상태면 None을 반환하고, 아니면 더미 User 객체를 반환. 바꿔가면서 UI 테스트 ㄱㄱ
 
 SECRET_KEY = "jungle_mini_project2131236532dsafxd24weqsadasd"
+
 
 def get_user_context(return_none: bool = False) -> User | None:
 
@@ -13,15 +14,18 @@ def get_user_context(return_none: bool = False) -> User | None:
 
     if not token:
         return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
 
-    payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('login_id')
+        username = payload.get('username')
 
-    user_id = payload.get('login_id')
-    username = payload.get('username')
-
-    return User(
-        _id="",
-        username=username,
-        login_id=user_id,
-        password_hash="",
-    )
+        return User(
+            _id="",
+            username=username,
+            login_id=user_id,
+            password_hash="",
+        )
+    except jwt.ExpiredSignatureError:
+        flash("로그인 세션이 만료되었습니다. 다시 로그인해주세요.", "danger")
+        return None

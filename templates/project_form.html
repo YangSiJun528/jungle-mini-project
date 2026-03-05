@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <style>
 body{
     font-family: Arial, sans-serif;
@@ -30,7 +31,7 @@ textarea{
     resize: none;
 }
 
-button{
+button.submit{
     width: 100%;
     padding: 12px;
     background-color: #4CAF50;
@@ -40,17 +41,79 @@ button{
     cursor: pointer;
 }
 
-button:hover{
+button.submit:hover{
     background-color: #45a049;
+}
+
+.add-btn{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:none;
+    background:#bdbdbd;
+    color:rgb(1, 0, 0);
+    font-size:15px;
+    cursor:pointer;
+    margin-bottom: 20px;
+}
+
+.add-btn:hover{
+    background:#787978;
+}
+
+.add-area{
+    text-align:center;
 }
 </style>
 
+
 <div class="form-container">
-<form action = "/projects" method = "POST">
-    <input name = "title" placeholder = "제목을 입력해주세요">
-    <textarea name = "content" placeholder = "설명"></textarea>
-    <input name = "url" placeholder = "귀하의 서비스의 url을 입력">
-    <button type ="submit">등록</button>
+
+<form action="/projects" method="POST">
+
+    <input name="title" placeholder="제목을 입력해주세요">
+
+    <textarea name="content" placeholder="설명"></textarea>
+
+    <input name="url" placeholder="귀하의 서비스의 url을 입력">
+
+    <input name="tags" placeholder="#태그1 #태그2">
+
+
+    <!-- 테스트케이스 영역 -->
+    <div id="testcase-container">
+        <input name="testcases[]" placeholder="테스트케이스1">
+    </div>
+
+
+    <div class="add-area">
+        <button type="button" class="add-btn" onclick="addTestcase()">+</button>
+    </div>
+
+
+    <button class="submit" type="submit">등록</button>
+
 </form>
+
 </div>
+
+
+<script>
+let testcaseCount = 1;
+
+function addTestcase(){
+
+    testcaseCount++;
+
+    const container = document.getElementById("testcase-container");
+
+    const input = document.createElement("input");
+
+    input.name = "testcases[]";
+    input.placeholder = "테스트케이스" + testcaseCount;
+
+    container.appendChild(input);
+}
+</script>
+
 {% endblock %}

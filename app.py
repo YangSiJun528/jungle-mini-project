@@ -85,11 +85,23 @@ def create_project():
     title = request.form["title"]
     content = request.form["content"]
     url = request.form["url"]
+    testcases = request.form.getlist["testcases[]"]
+
+    tags_input = request.form["tags"]
+
+    tags = [
+        tag.strip()
+        for tag in tags_input.split("#")
+        if tag.strip()
+    ]
+
 
     project = {
         "title": title,
         "content": content,
-        "url": url
+        "url": url,
+        "testcases": testcases,
+        "tags": tags
     }
 
     projects.insert_one(project)

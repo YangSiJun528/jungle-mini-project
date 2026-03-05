@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, flash, get_flashed_messages, url_for, make_response
 from service.auth_service import auth_signup, auth_login, create_access_token, auth_get_user
 from common.dummy import get_user_context
+import jwt
 
 from common.error import ServiceError
 from model import project
@@ -9,6 +10,22 @@ app = Flask(__name__)
 app.secret_key = "secret_key"
 
 # 전역 컨텍스트
+
+
+@app.errorhandler(Exception)
+def global_excaption_handler(err):
+    print(err.__cause__)
+    flash("알수없는 에러가 발생했습니다.")
+    return redirect("/")
+
+
+@app.errorhandler(jwt.ExpiredSignatureError)
+def jwt__exception_handler(err):
+    # 쿠키 지우기
+    # 에러 메시지 띄우기
+    resp = make_response(redirect(url_for('render_project_list')))
+    resp.delete_cookie('access_token', path='/')
+    return resp
 
 
 @app.context_processor

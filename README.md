@@ -37,3 +37,15 @@ AI한테 도커 컴포즈 띄운거 삭제해달라고 ㄱㄱ
     - 미리 구현된 third-party 사용: https://github.com/marketplace/actions/ssh-remote-commands
   - 사실 테스트, 린트, 정적/빌드 검사 등이 없어서 CI는 아니고 CD만 있는 상황. 무중단 배포도 아니지만...
   - 개발 편의를 위한 자동화로는 충분함. 
+
+## 서버 접근
+
+### SSH
+
+`ssh -i <pem파일_위치> ec2-user@3.38.129.85
+
+예시: `ssh -i ~/jungle-mini.pem ec2-user@3.38.129.85
+
+### 웹
+
+URL: http://3.38.129.85:5001/

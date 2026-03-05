@@ -278,6 +278,11 @@ def update_project(project_id):
     content = request.form.get("content")
     url = request.form.get("url")
     expired_date_str = request.form.get("expired_date")
+    tags_input = request.form.get("tags", "")
+    tags = []
+    for t in tags_input.split("#"):
+        if t.strip():
+            tags.append({"name": t.strip()})
 
     expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
 
@@ -286,6 +291,7 @@ def update_project(project_id):
         "content": content,
         "url": url,
         "expired_date": expired_date,
+        "tags": tags,
     }
 
     ok_or_err = project_update(user_id, project_id, data)

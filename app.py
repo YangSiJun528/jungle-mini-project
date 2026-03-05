@@ -9,6 +9,7 @@ from common.dummy import get_user_context
 import jwt
 from common.error import ServiceError
 from model import project
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -201,6 +202,8 @@ def create_project():
     title = request.form["title"]
     content = request.form["content"]
     url = request.form["url"]
+    expired_date_str = request.form["expired_date"]
+    expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
 
     testcases_input = request.form.getlist("testcases[]")
     test_cases = []
@@ -223,7 +226,7 @@ def create_project():
         title = title,
         content = content,
         url = url,
-        expired_date = datetime.now(),
+        expired_date = expired_date,
         created_at = datetime.now(),
         is_expired = False,
         test_cases = test_cases,

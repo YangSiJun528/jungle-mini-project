@@ -68,8 +68,13 @@
 
 <nav aria-label="..." class="mt-5 d-flex justify-content-center">
     <ul class="pagination">
+         
+        {% set BLOCK_SIZE = 5 %}
+        {% set block_num = (pagination_info.page - 1) // BLOCK_SIZE %}
+        {% set prev_block_start = (block_num - 1) * BLOCK_SIZE + 1 %}
+        {% set next_block_start = (block_num + 1) * BLOCK_SIZE + 1 %}
         <li class="page-item {% if pagination_info.block_start == 1%}disabled{% endif %}">
-            <a class="page-link">Previous</a>
+            <a class="page-link" href="{{ modify_query(page=prev_block_start) }}">Previous</a>
         </li>
 
         {% for cur_page in range(pagination_info.block_start, pagination_info.block_end + 1) %}
@@ -82,7 +87,7 @@
             {% endfor %}
 
             <li class="page-item {% if pagination_info.block_end >= pagination_info.last_page_num%}disabled{% endif %}">
-                <a class="page-link" href="#">Next</a>
+                <a class="page-link" href="{{ modify_query(page=next_block_start) }}">Next</a>
             </li>
     </ul>
 </nav>

@@ -11,8 +11,8 @@ class Project:
     title: str
     content: str
     url: str
-    # created_at: datetime
     expired_date: datetime
     is_expired: bool
+    created_at: datetime = field(default_factory=datetime.now) # TODO: 연동 끝나고 마지막에 직접 값 할당하게 하기
     test_cases: list[TestCase] = field(default_factory=list)
     tags: list[Tag] = field(default_factory=list)

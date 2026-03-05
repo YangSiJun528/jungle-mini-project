@@ -136,16 +136,17 @@ def logout():
 @app.route("/", methods=["GET"])
 def render_project_list():
     from service.project_service import project_list, pagination_info
-
+    from datetime import datetime
     page = request.args.get("page", default=1, type=int)
     keyword = request.args.get("keyword", default=None, type=str)
     tag = request.args.get("tag", default=None, type=str)
     sort_mode = request.args.get("sort_mode", default=None, type=str)
+    projects = project_list(page=page, keyword=keyword,
+                            tag=tag, sort_mode=sort_mode)
+    pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
+    now = datetime.utcnow()
 
-    projects = project_list(page=page, keyword=keyword, tag=tag, sort_mode=sort_mode)
-    page_info = pagination_info(page=page, keyword=keyword, tag=tag)
-
-    return render_template("index.html", projects=projects, pagination_info=page_info)
+    return render_template("index.html", projects=projects, pagination_info=pagination_info, now=now)
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
@@ -247,17 +248,20 @@ def create_project():
         if t:
             tags.append(Tag(name=t))  # create에서는 Tag 객체로 저장(서비스에서 asdict로 dict화)
 
+    expired_date = datetime.strptime(request.form["expired_date"], "%Y-%m-%d")
+
     new = Project(
-        _id=None,
-        user_id=user_id,
-        title=title,
-        content=content,
-        url=url,
-        expired_date=datetime.now(),
-        created_at=datetime.now(),
-        is_expired=False,
-        test_cases=test_cases,
-        tags=tags
+
+        _id = None,
+        user_id = user_id,
+        title = title,
+        content = content,
+        url = url,
+        expired_date = expired_date,
+        created_at = datetime.now(),
+        is_expired = False,
+        test_cases = test_cases,
+        tags = tags
 
     )
 

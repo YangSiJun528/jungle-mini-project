@@ -19,6 +19,12 @@ def inject_user_context():
 def health():
     return "ok"
 
+@app.template_global()
+def modify_query(**kwargs):
+    args = request.args.copy()
+    for key, value in kwargs.items():
+        args[key] = value
+    return request.path + '?' + '&'.join(f'{k}={v}' for k, v in args.items())
 
 # ------------------------
 # 인증
@@ -108,8 +114,15 @@ def logout():
 @app.route("/", methods=["GET"])
 def render_project_list():
     # 메인 페이지 - 프로젝트 목록
-    # 쿼리 파라미터 처리 필요
-    pass
+    from service.project_service import project_list, pagination_info
+    page = request.args.get("page", default=1, type=int)
+    keyword = request.args.get("keyword", default=None, type=str)
+    tag = request.args.get("tag", default=None, type=str)
+    sort_mode = request.args.get("sort_mode", default=None, type=str)
+    projects = project_list(page=page, keyword=keyword, tag=tag, sort_mode=sort_mode)
+    pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
+
+    return render_template("index.html", projects=projects, pagination_info=pagination_info)
 
 
 @app.route("/projects/<project_id>", methods=["GET"])

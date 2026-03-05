@@ -22,9 +22,9 @@ def global_excaption_handler(err):
 @app.errorhandler(jwt.ExpiredSignatureError)
 def jwt__exception_handler(err):
     # 쿠키 지우기
-    # 에러 메시지 띄우기
     resp = make_response(redirect(url_for('render_project_list')))
     resp.delete_cookie('access_token', path='/')
+
     return resp
 
 
@@ -85,7 +85,7 @@ def login():
         'access_token',
         jwt_token,
         httponly=True,
-        max_age=3600)
+        max_age=62)
 
     return resp
 

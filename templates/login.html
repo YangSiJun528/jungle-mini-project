@@ -3,7 +3,6 @@
 {% block title %}로그인{% endblock %}
 
 {% block style %}
-/* 기존 max-width 설정 삭제 */
 .login-section {
 margin-top: 100px;
 }
@@ -17,14 +16,6 @@ margin-top: 100px;
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h3 class="card-title text-center mb-4">로그인</h3>
-
-                    {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ messages[0] }}
-                    </div>
-                    {% endif %}
-                    {% endwith %}
 
                     <form action="/login" method="POST">
                         <div class="mb-3">

@@ -3,7 +3,16 @@
 
 <h2>{{ project.title }}</h2>
 <h4><a href="{{ project.url }}">{{ project.url }}</a></h4>
+<p>만료 기간: {{ project.expired_date }}</p>
+<p>생성 기간: {{ project.created_at }}</p>
+<br>
 <p>{{ project.content }}</p>
+<p>
+    {% for tag in project.tags %}
+        <a class="badge text-bg-light" href="/?tag={{ tag.name }}">#{{ tag.name }}</a>
+    {% endfor %}
+</p>
+
 
 <form id="feedback-form" action="/projects/{{ project._id }}/feedbacks" method="POST">
     <div class="mb-3 border p-3">

@@ -152,7 +152,6 @@ def render_project_list():
 def render_project_detail(project_id):
     proj = project_get(project_id)
 
-    # 먼저 에러 체크 (ServiceError면 아래 접근하면 터짐)
     if isinstance(proj, ServiceError):
         flash("프로젝트를 찾을 수 없습니다. 프로젝트가 삭제되었거나 잘못된 프로젝트입니다.")
         return redirect("/")
@@ -160,21 +159,19 @@ def render_project_detail(project_id):
     current_user = get_user_context()
     is_owner = current_user and (str(proj.user_id) == str(current_user._id))
 
-    # 작성자 아니면 비활성/삭제 숨김
+    # 비작성자면: 삭제/비활성 숨김 (활성만)
     if not is_owner:
         proj.test_cases = [
             tc for tc in proj.test_cases
             if (not getattr(tc, "is_deleted", False)) and getattr(tc, "is_active", True)
         ]
+    proj.test_cases = sorted(proj.test_cases, key=lambda tc: not getattr(tc, "is_active", True))
 
-    # 피드백 정렬
+
     for test_case in proj.test_cases:
-        test_case.feedbacks = sorted(
-            test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True
-        )
+        test_case.feedbacks = sorted(test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
 
-    return render_template("project_detail.html", project=proj)
-
+    return render_template("project_detail.html", project=proj, is_owner=is_owner, user_context=current_user)
 
 @app.route("/my-projects", methods=["GET"])
 def render_my_projects():
@@ -424,7 +421,31 @@ def render_feedbacks(project_id):
         flash("프로젝트를 찾을 수 없습니다.")
         return redirect("/")
 
-    return render_template("feedback-form.html", project=proj)
+    current_user = get_user_context()
+    is_owner = current_user and (str(proj.user_id) == str(current_user._id))
+
+    # 삭제는 공통으로 숨김
+    proj.test_cases = [
+        tc for tc in proj.test_cases
+        if not getattr(tc, "is_deleted", False)
+    ]
+
+    # 비작성자면 비활성 숨김(활성만)
+    if not is_owner:
+        proj.test_cases = [
+            tc for tc in proj.test_cases
+            if getattr(tc, "is_active", True)
+        ]
+
+    # 활성/비활성 정렬
+    proj.test_cases = sorted(proj.test_cases, key=lambda tc: not getattr(tc, "is_active", True))
+
+    return render_template(
+        "feedback-form.html",
+        project=proj,
+        is_owner=is_owner,
+        user_context=current_user
+    )
 
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])

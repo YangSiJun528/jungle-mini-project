@@ -1,118 +1,82 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<style>
-body{
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
 
-.form-container{
-    width: 400px;
-    margin: 80px auto;
-    padding: 30px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
+          <h5 class="mb-4">프로젝트 등록</h5>
 
-input, textarea{
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
+          <form action="/projects" method="POST">
 
-textarea{
-    height: 100px;
-    resize: none;
-}
+            <!-- 제목 -->
+            <div class="mb-3">
+              <label for="title" class="form-label">제목</label>
+              <input id="title" name="title" class="form-control" placeholder="제목을 입력해주세요">
+            </div>
 
-button.submit{
-    width: 100%;
-    padding: 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
+            <!-- 설명 -->
+            <div class="mb-3">
+              <label for="content" class="form-label">설명</label>
+              <textarea id="content" name="content" class="form-control" rows="4" placeholder="설명"></textarea>
+            </div>
 
-button.submit:hover{
-    background-color: #45a049;
-}
+            <!-- URL -->
+            <div class="mb-3">
+              <label for="url" class="form-label">서비스 URL</label>
+              <input id="url" name="url" class="form-control" placeholder="귀하의 서비스의 url을 입력">
+            </div>
 
-.add-btn{
-    width:30px;
-    height:30px;
-    border-radius:50%;
-    border:none;
-    background:#bdbdbd;
-    color:rgb(1, 0, 0);
-    font-size:15px;
-    cursor:pointer;
-    margin-bottom: 20px;
-}
+            <!-- 태그 -->
+            <div class="mb-3">
+              <label for="tags" class="form-label">태그</label>
+              <input id="tags" name="tags" class="form-control" placeholder="#태그1 #태그2">
+              <div class="form-text">예: #python #flask 처럼 입력</div>
+            </div>
 
-.add-btn:hover{
-    background:#787978;
-}
+            <!-- 테스트케이스 -->
+            <div class="mb-2 d-flex align-items-center justify-content-between">
+              <label class="form-label mb-0">테스트케이스</label>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestcase()">추가</button>
+            </div>
 
-.add-area{
-    text-align:center;
-}
-</style>
+            <div id="testcase-container" class="mb-3">
+              <div class="mb-2">
+                <input name="testcases[]" class="form-control" placeholder="테스트케이스1">
+              </div>
+            </div>
 
+            <button class="btn btn-success w-100" type="submit">등록</button>
 
-<div class="form-container">
+          </form>
 
-<form action="/projects" method="POST">
-
-    <input name="title" placeholder="제목을 입력해주세요">
-
-    <textarea name="content" placeholder="설명"></textarea>
-
-    <input name="url" placeholder="귀하의 서비스의 url을 입력">
-
-    <input name="tags" placeholder="#태그1 #태그2">
-
-
-    <!-- 테스트케이스 영역 -->
-    <div id="testcase-container">
-        <input name="testcases[]" placeholder="테스트케이스1">
+        </div>
+      </div>
     </div>
-
-
-    <div class="add-area">
-        <button type="button" class="add-btn" onclick="addTestcase()">+</button>
-    </div>
-
-
-    <button class="submit" type="submit">등록</button>
-
-</form>
-
+  </div>
 </div>
-
 
 <script>
 let testcaseCount = 1;
 
-function addTestcase(){
+function addTestcase() {
+  testcaseCount++;
 
-    testcaseCount++;
+  const container = document.getElementById("testcase-container");
 
-    const container = document.getElementById("testcase-container");
+  // Bootstrap 간격을 주기 위해 div로 한번 감싸는 게 깔끔함
+  const wrapper = document.createElement("div");
+  wrapper.className = "mb-2";
 
-    const input = document.createElement("input");
+  const input = document.createElement("input");
+  input.name = "testcases[]";
+  input.placeholder = "테스트케이스" + testcaseCount;
+  input.className = "form-control"; // ★ 이게 핵심
 
-    input.name = "testcases[]";
-    input.placeholder = "테스트케이스" + testcaseCount;
-
-    container.appendChild(input);
+  wrapper.appendChild(input);
+  container.appendChild(wrapper);
 }
 </script>
 

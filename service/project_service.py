@@ -130,8 +130,34 @@ def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict
     }
 
 
-def project_get_my(user_id: str) -> list[Project]:
-    pass
+def project_get_my(user_id: str, keyword: str | None, tag: str | None, sort_mode: str | None) -> list[Project]:
+    from pymongo import DESCENDING, ASCENDING
+    sort_options = {
+        "latest": [("created_at", DESCENDING)],
+        "deadline": [("expired_date", ASCENDING), ("created_at", DESCENDING)],
+    }
+
+    sort_params = "latest"
+    if sort_mode is not None:
+        sort_params = sort_mode
+
+    conditions = [ {"user_id": user_id} ]
+    if keyword:
+        conditions.append({
+            "$or": [
+                {"title": {"$regex": keyword, "$options": "i"}},
+                {"content": {"$regex": keyword, "$options": "i"}},
+            ]
+        })
+    if tag:
+        conditions.append({"tags": {"$elemMatch": {"name": tag}}})
+    query = {"$and": conditions} if conditions else {}
+
+    assert sort_options[sort_params] is not None
+    sort = sort_options[sort_params]
+
+    project_results = db_projects.find(query).sort(sort)
+    return project_results
 
 
 def project_delete(user_id: str, project_id: str) -> bool | ServiceError:

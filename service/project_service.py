@@ -1,6 +1,6 @@
 from dataclasses import asdict
 from common.db import db_projects
-from common.error import ServiceError, PROJECT_NOT_FOUND
+from common.error import ServiceError, PROJECT_NOT_FOUND, PROJECT_DELETE_FAILED
 from model.project import Project
 from model.test_case import TestCase
 from model.feedback import Feedback
@@ -129,6 +129,26 @@ def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict
         "last_page_num": last_page_num,
     }
 
+def testcase_deactivate(user_id: str, project_id: str, testcase_id: str) -> bool | ServiceError:
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id), "user_id": user_id, "test_cases.id": testcase_id},
+        {"$set": {"test_cases.$.is_active": False}}
+    )
+    if result.matched_count == 0:
+        return PROJECT_NOT_FOUND
+    return True
+
+
+def testcase_hard_delete(user_id: str, project_id: str, testcase_id: str) -> bool | ServiceError:
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id), "user_id": user_id, "test_cases.id": testcase_id},
+        {"$pull": {"test_cases": {"id": testcase_id}}}
+    )
+    if result.matched_count == 0:
+        return PROJECT_NOT_FOUND
+    if result.modified_count == 0:
+        return ServiceError("삭제할 테스트케이스가 없습니다.")
+    return True
 
 def project_get_my(user_id: str, keyword: str | None, tag: str | None, sort_mode: str | None) -> list[Project]:
     from pymongo import DESCENDING, ASCENDING
@@ -161,7 +181,10 @@ def project_get_my(user_id: str, keyword: str | None, tag: str | None, sort_mode
 
 
 def project_delete(user_id: str, project_id: str) -> bool | ServiceError:
-    pass
+    result = db_projects.delete_one({"_id": ObjectId(project_id), "user_id": user_id})
+    if result.deleted_count == 0:
+        return PROJECT_DELETE_FAILED
+    return True
 
 
 def project_close(user_id: str, project_id: str) -> bool | ServiceError:

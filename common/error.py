@@ -20,6 +20,7 @@ UNKNOWN_ERROR_AT_SIGNUP_COMMON = ServiceError(1004, "회원가입 처리 중 오
 # 2xxx: Project
 PROJECT_COMMON = ServiceError(2000, "에러 예시")
 PROJECT_NOT_FOUND = ServiceError(2001, "프로젝트를 찾을 수 없습니다.")
+PROJECT_DELETE_FAILED = ServiceError(2002, "프로젝트 삭제에 실패했습니다.")
 
 # 3xxx: Feedback
 FEEDBACK_COMMON = ServiceError(3000, "에러 예시")

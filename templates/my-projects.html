@@ -62,7 +62,7 @@
                     <p class="card-text">{{ project.content }}</p>
                     <p>
                         {% for tag in project.tags %}
-                        <a class="badge text-bg-light" href="/?tag={{ tag.name }}">#{{ tag.name }}</a>
+                        <a class="badge text-bg-light" href="{{ modify_query(tag=tag.name) }}">#{{ tag.name }}</a>
                         {% endfor %}
                     </p>
                     <a href="/projects/{{ project._id }}" class="card-link">상세정보</a>

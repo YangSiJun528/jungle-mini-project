@@ -26,6 +26,10 @@ def global_excaption_handler(err):
     flash("알수없는 에러가 발생했습니다.")
     return redirect("/")
 
+@app.errorhandler(404)
+def http_not_found_excaption_handler(err):
+    flash("찾을 수 없는 페이지입니다.")
+    return redirect("/")
 
 @app.errorhandler(jwt.ExpiredSignatureError)
 def jwt__exception_handler(err):

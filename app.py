@@ -172,8 +172,21 @@ def render_project_detail(project_id):
 
 @app.route("/my-projects", methods=["GET"])
 def render_my_projects():
-    # TODO: 내 프로젝트 목록
-    return "TODO"
+    # 내 프로젝트 목록
+    current_user = get_user_context()
+
+    if not current_user:
+        flash("내 프로젝트를 보려면 로그인이 필요합니다.")
+        return redirect("/login")
+
+    current_user_id = current_user._id
+    keyword = request.args.get("keyword", default=None, type=str)
+    tag = request.args.get("tag", default=None, type=str)
+    sort_mode = request.args.get("sort_mode", default=None, type=str)
+    from service.project_service import project_get_my
+    projects = project_get_my(user_id=current_user_id, keyword=keyword, tag=tag, sort_mode=sort_mode)
+
+    return render_template("my-projects.html", projects=projects)
 
 
 # ------------------------

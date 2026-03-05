@@ -61,6 +61,12 @@
                             <a class="badge text-bg-light" href="/?tag={{ tag.name }}">#{{ tag.name }}</a>
                         {% endfor %}
                     </p>
+                    <p class="card-text text-secondary small mb-0">
+                        마감: {{ project.expired_date.strftime('%Y-%m-%d') }}
+                    </p>
+                    <p class="card-text text-secondary smaller" style="font-size: 0.75rem;">
+                        생성: {{ project.created_at.strftime('%Y-%m-%d') }}
+                    </p>
                     <a href="/projects/{{ project._id }}" class="card-link">상세정보</a>
                     <a href="/projects/{{ project._id }}/feedbacks" class="card-link">테스트하러 가기</a>
                 </div>

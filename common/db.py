@@ -11,3 +11,6 @@ _db = _client["jungleqa"]
 # DB 접근 시 이걸로 고정해서 처리
 db_projects: Collection = _db["projects"]
 db_users: Collection = _db["users"]
+
+# 시작 될때, DB 측에서 login_id에 유니크를 걸어서 중복 id를 방지
+db_users.create_index("login_id", unique=True)

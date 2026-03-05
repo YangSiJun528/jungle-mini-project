@@ -11,10 +11,11 @@ class ServiceError:
 # 1: Auth
 
 
-DUPLICATE_ID_COMMON = ServiceError(1000, "중복 ID 입니다")
-NOT_EXISTS_ID_COMMON = ServiceError(1001, "해당 ID가 존재하지 않습니다")
-INVALID_CREDENTIALS_COMMON = ServiceError(10012, "아이디 또는 비밀번호가 일치하지 않습니다")
-NOT_FOUND_ID_COMMON = ServiceError(10013, "존재하지 않는 아이디입니다.")
+DUPLICATE_ID_COMMON = ServiceError(1000, "중복 ID 입니다.")
+NOT_EXISTS_ID_COMMON = ServiceError(1001, "해당 ID가 존재하지 않습니다.")
+INVALID_CREDENTIALS_COMMON = ServiceError(1002, "아이디 또는 비밀번호가 일치하지 않습니다.")
+NOT_FOUND_ID_COMMON = ServiceError(1003, "존재하지 않는 아이디입니다.")
+UNKNOWN_ERROR_AT_SIGNUP_COMMON = ServiceError(1004, "회원가입 처리 중 오류가 발생했습니다.")
 
 # 2xxx: Project
 PROJECT_COMMON = ServiceError(2000, "에러 예시")

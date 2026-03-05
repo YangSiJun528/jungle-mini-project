@@ -7,7 +7,6 @@ from model.feedback import Feedback
 from model.tag import Tag
 from bson.objectid import ObjectId
 from datetime import datetime
-from flask import request
 import math
 
 DISPLAY_LIMIT = 8
@@ -22,6 +21,14 @@ def project_create(project: Project) -> Project:
     project._id = str(result.inserted_id)  # 자동 생성된 ID를 project._id에 할당
     return project
 
+def project_update(user_id: str, project_id: str, data:dict) -> None:
+    allowed = {"title", "content", "url", "expired_date", "tags"}
+    update_data = {k: v for k, v in data.items() if k in allowed}
+
+    result = db_projects.update_one(
+        {"_id": ObjectId(project_id), "user_id": user_id},
+        {"$set": update_data},
+    )
 
 def project_get(project_id: str) -> Project | ServiceError:
     doc = db_projects.find_one({"_id": ObjectId(project_id)})
@@ -124,10 +131,6 @@ def pagination_info(keyword: str | None, tag: str | None, page: int = 1) -> dict
 
 
 def project_get_my(user_id: str) -> list[Project]:
-    pass
-
-
-def project_update(user_id: str, project_id: str, data: dict) -> bool | ServiceError:
     pass
 
 

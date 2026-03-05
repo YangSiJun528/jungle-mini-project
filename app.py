@@ -191,6 +191,13 @@ def render_project_form():
 @app.route("/projects", methods=["POST"])
 def create_project():
     import uuid
+    current_user = get_user_context()
+
+    if not current_user:
+        flash("프로젝트를 생성하기 위해선 로그인이 필요합니다")
+        return redirect("/login")
+
+    user_id = current_user._id
     title = request.form["title"]
     content = request.form["content"]
     url = request.form["url"]
@@ -212,6 +219,7 @@ def create_project():
 
     new = Project(
         _id = None,
+        user_id = user_id,
         title = title,
         content = content,
         url = url,

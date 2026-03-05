@@ -29,12 +29,19 @@
               <input id="url" name="url" class="form-control" placeholder="귀하의 서비스의 url을 입력">
             </div>
 
+            <!-- URL -->
+            <div class="mb-3">
+              <label for="expired_date">만료기일</label>
+              <input type="date" id="expired_date" name="expired_date" required>
+            </div>
+
             <!-- 태그 -->
             <div class="mb-3">
               <label for="tags" class="form-label">태그</label>
               <input id="tags" name="tags" class="form-control" placeholder="#태그1 #태그2">
               <div class="form-text">예: #python #flask 처럼 입력</div>
             </div>
+            
 
             <!-- 테스트케이스 -->
             <div class="mb-2 d-flex align-items-center justify-content-between">
@@ -48,7 +55,7 @@
               </div>
             </div>
 
-            <button class="btn btn-success w-100" type="submit">등록</button>
+            <button class="btn btn-primary w-100" type="submit">등록</button>
 
           </form>
 

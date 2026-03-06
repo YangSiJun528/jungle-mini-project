@@ -13,10 +13,10 @@
     <div class="container mt-4">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
             <a href="/"
-                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                <span class="fs-4">정글러 QA</span>
+                class="d-flex align-items-center justify-content-center w-100 mb-2 mx-auto link-body-emphasis text-decoration-none">
+                <span class="display-5 fw-bold text-primary"> 정글러 <span class="text-dark">QA</span></span>
             </a>
-            <ul class="nav nav-pills">
+            <ul class="nav nav-pills mt-1 {% if not user_context %}w-100 justify-content-end{% endif %}">
                 {% if user_context %}
                 <li class="nav-item"><span class="nav-link text-muted">이름: {{ user_context.username }}</span></li>
                 <li class="nav-item"><a href="/my-projects" class="nav-link">마이페이지</a></li>
@@ -26,7 +26,7 @@
                     </form>
                 </li>
                 {% else %}
-                <li class="nav-item"><a href="/login" class="nav-link">로그인</a></li>
+                <li class="nav-item"><a href="/login" class="btn btn-outline-success fw-semibold px-3">로그인</a></li>
                 {% endif %}
             </ul>
         </header>

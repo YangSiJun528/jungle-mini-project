@@ -1,4 +1,4 @@
-// 사용 방법(Unix 계열 - Git Bash, WSL, Mac 등): docker compose -T exec mongo mongosh < dummy_db_init.js
+// 사용 방법(Unix 계열 - Git Bash, WSL, Mac 등): docker compose exec -T mongo mongosh < dummy_db_init.js
 
 // =====================================================
 // 페이지 채우기용 더미 프로젝트 20개

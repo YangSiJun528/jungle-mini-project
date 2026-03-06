@@ -26,7 +26,9 @@
                     </form>
                 </li>
                 {% else %}
+                {% if request.path != '/login' %}
                 <li class="nav-item"><a href="/login" class="btn btn-outline-success fw-semibold px-3">로그인</a></li>
+                {% endif %}
                 {% endif %}
             </ul>
         </header>

@@ -9,7 +9,7 @@
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
-<body>
+<body class="bg-body-tertiary">
     <div class="container mt-4">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
             <a href="/"
@@ -44,7 +44,7 @@
         </div>
         {% endif %}
         {% endwith %}
-        <div class="jg_main">
+        <div class="jg_main py-2">
             {% block content %}{% endblock %}
         </div>
         <footer class="container mt-4 d-flex flex-wrap justify-content-between align-items-center py-3 my-5 border-top">
@@ -55,6 +55,11 @@
             crossorigin="anonymous"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> {# jquery 추가:
         https://developers.google.com/speed/libraries?hl=ko #}
+        <script>
+            document.querySelectorAll('.card').forEach((card) => {
+                card.classList.add('border', 'border-secondary-subtle', 'shadow-sm');
+            });
+        </script>
         {% block scripts %}{% endblock %} {# 각 페이지에서만 필요한 스크립트를 추가 #}
 </body>
 

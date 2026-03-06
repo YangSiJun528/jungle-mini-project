@@ -1,3 +1,4 @@
+from flask import jsonify, request
 from common.error import ServiceError
 import jwt
 from common.dummy import get_user_context
@@ -107,6 +108,10 @@ def signup():
     password = request.form.get("password") or ""
     confirm_password = request.form.get("confirm_password") or ""
 
+    if not login_id or not username or not password or not confirm_password:
+        flash("아이디/이름/비밀번호를 모두 입력하세요")
+        return redirect("/signup")
+
     if len(password) < 8:
         flash("비밀번호는 8글자 이상이어야 합니다")
         return redirect("/signup")
@@ -147,6 +152,7 @@ def render_project_list():
     now = datetime.utcnow()
 
     return render_template("index.html", projects=projects, pagination_info=pagination_info, now=now)
+
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
@@ -243,7 +249,8 @@ def create_project():
     for t in tags_input.split("#"):
         t = t.strip()
         if t:
-            tags.append(Tag(name=t))  # create에서는 Tag 객체로 저장(서비스에서 asdict로 dict화)
+            # create에서는 Tag 객체로 저장(서비스에서 asdict로 dict화)
+            tags.append(Tag(name=t))
 
     expired_date = datetime.strptime(request.form["expired_date"], "%Y-%m-%d")
 
@@ -340,8 +347,6 @@ def deactivate_testcase_in_project(project_id, testcase_id):
         flash("비활성화 실패")
     return redirect(f"/projects/{project_id}/edit")
 
-
-from flask import jsonify, request
 
 @app.route("/projects/<project_id>/testcases/<testcase_id>/delete", methods=["POST"])
 def delete_testcase_in_project(project_id, testcase_id):
@@ -457,7 +462,8 @@ def submit_feedbacks(project_id):
     from service.feedback_service import feedback_submit
 
     form = request.form
-    test_case_ids = [key.replace("result_", "") for key in form if key.startswith("result_")]
+    test_case_ids = [key.replace("result_", "")
+                     for key in form if key.startswith("result_")]
 
     feedbacks = []
     for tc_id in test_case_ids:

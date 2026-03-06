@@ -141,24 +141,24 @@ def logout():
 @app.route("/", methods=["GET"])
 def render_project_list():
     from service.project_service import project_list, pagination_info
-
+    from datetime import datetime
     page = request.args.get("page", default=1, type=int)
     keyword = request.args.get("keyword", default=None, type=str)
     tag = request.args.get("tag", default=None, type=str)
     sort_mode = request.args.get("sort_mode", default=None, type=str)
-
     projects = project_list(page=page, keyword=keyword,
                             tag=tag, sort_mode=sort_mode)
-    page_info = pagination_info(page=page, keyword=keyword, tag=tag)
+    pagination_info = pagination_info(page=page, keyword=keyword, tag=tag)
+    now = datetime.utcnow()
 
-    return render_template("index.html", projects=projects, pagination_info=page_info)
+    return render_template("index.html", projects=projects, pagination_info=pagination_info, now=now)
+
 
 
 @app.route("/projects/<project_id>", methods=["GET"])
 def render_project_detail(project_id):
     proj = project_get(project_id)
 
-    # 먼저 에러 체크 (ServiceError면 아래 접근하면 터짐)
     if isinstance(proj, ServiceError):
         flash("프로젝트를 찾을 수 없습니다. 프로젝트가 삭제되었거나 잘못된 프로젝트입니다.")
         return redirect("/")
@@ -166,21 +166,19 @@ def render_project_detail(project_id):
     current_user = get_user_context()
     is_owner = current_user and (str(proj.user_id) == str(current_user._id))
 
-    # 작성자 아니면 비활성/삭제 숨김
+    # 비작성자면: 삭제/비활성 숨김 (활성만)
     if not is_owner:
         proj.test_cases = [
             tc for tc in proj.test_cases
             if (not getattr(tc, "is_deleted", False)) and getattr(tc, "is_active", True)
         ]
+    proj.test_cases = sorted(proj.test_cases, key=lambda tc: not getattr(tc, "is_active", True))
 
-    # 피드백 정렬
+
     for test_case in proj.test_cases:
-        test_case.feedbacks = sorted(
-            test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True
-        )
+        test_case.feedbacks = sorted(test_case.feedbacks, key=lambda fb: fb.is_ok, reverse=True)
 
-    return render_template("project_detail.html", project=proj)
-
+    return render_template("project_detail.html", project=proj, is_owner=is_owner, user_context=current_user)
 
 @app.route("/my-projects", methods=["GET"])
 def render_my_projects():
@@ -254,17 +252,20 @@ def create_project():
             # create에서는 Tag 객체로 저장(서비스에서 asdict로 dict화)
             tags.append(Tag(name=t))
 
+    expired_date = datetime.strptime(request.form["expired_date"], "%Y-%m-%d")
+
     new = Project(
-        _id=None,
-        user_id=user_id,
-        title=title,
-        content=content,
-        url=url,
-        expired_date=datetime.now(),
-        created_at=datetime.now(),
-        is_expired=False,
-        test_cases=test_cases,
-        tags=tags
+
+        _id = None,
+        user_id = user_id,
+        title = title,
+        content = content,
+        url = url,
+        expired_date = expired_date,
+        created_at = datetime.now(),
+        is_expired = False,
+        test_cases = test_cases,
+        tags = tags
 
     )
 
@@ -429,7 +430,31 @@ def render_feedbacks(project_id):
         flash("프로젝트를 찾을 수 없습니다.")
         return redirect("/")
 
-    return render_template("feedback-form.html", project=proj)
+    current_user = get_user_context()
+    is_owner = current_user and (str(proj.user_id) == str(current_user._id))
+
+    # 삭제는 공통으로 숨김
+    proj.test_cases = [
+        tc for tc in proj.test_cases
+        if not getattr(tc, "is_deleted", False)
+    ]
+
+    # 비작성자면 비활성 숨김(활성만)
+    if not is_owner:
+        proj.test_cases = [
+            tc for tc in proj.test_cases
+            if getattr(tc, "is_active", True)
+        ]
+
+    # 활성/비활성 정렬
+    proj.test_cases = sorted(proj.test_cases, key=lambda tc: not getattr(tc, "is_active", True))
+
+    return render_template(
+        "feedback-form.html",
+        project=proj,
+        is_owner=is_owner,
+        user_context=current_user
+    )
 
 
 @app.route("/projects/<project_id>/feedbacks", methods=["POST"])
